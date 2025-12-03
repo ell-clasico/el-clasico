@@ -1522,3 +1522,262 @@ body {
     font-weight: 700;
     transition: 0.2s;
 }
+
+@media (max-width: 750px) {
+    .nav {
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 8px;
+        justify-content: center;
+    }
+
+    .nav-btn {
+        padding: 8px 10px;
+        font-size: 13px;
+        border-radius: 10px;
+        min-width: 90px;
+        flex: 1 1 calc(33% - 12px);
+        text-align: center;
+    }
+}
+@media (max-width: 750px) {
+
+    #profilim .profil-box {
+        flex-direction: column;
+        gap: 20px;
+        padding: 15px;
+        width: 100%;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    #profilim .profil-left,
+    #profilim .profil-right {
+        width: 100% !important;
+        min-width: unset !important;
+        margin: 0 auto;
+    }
+}
+@media (max-width: 750px) {
+    .fut-card {
+        width: 100% !important;
+        height: auto !important;
+        transform: scale(0.9);
+        transform-origin: top center;
+    }
+
+    .fut-name {
+        font-size: 22px !important;
+    }
+
+    .fut-top .fut-ovr {
+        font-size: 35px !important;
+    }
+
+    .fut-top .fut-pos {
+        font-size: 18px !important;
+    }
+
+    .fut-stats {
+        font-size: 13px !important;
+        grid-template-columns: 100px 100px !important;
+        row-gap: 5px !important;
+    }
+}
+@media (max-width: 750px) {
+    .fm-field {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        justify-items: center;
+        width: 100% !important;
+        transform: scale(0.95);
+    }
+
+    .fm-card {
+        padding: 10px !important;
+        font-size: 14px !important;
+        width: 100%;
+        text-align: center;
+    }
+}
+@media (max-width: 750px) {
+    .photo-actions {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px !important;
+    }
+}
+/* Tablet */
+@media (max-width: 900px) {
+    .card-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Mobil */
+@media (max-width: 600px) {
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 600px) {
+    .card {
+        width: 100% !important;
+        height: auto !important;
+        padding: 8px !important;
+    }
+
+    .card img {
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    .card h3 {
+        font-size: 14px !important;
+    }
+
+    .card .stats {
+        font-size: 11px !important;
+    }
+}
+@media (max-width: 600px) {
+    .player-pos {
+        padding: 10px !important;
+        font-size: 12px !important;
+    }
+}
+@media (max-width: 600px) {
+    .card {
+        padding: 10px !important;
+        border-radius: 10px !important;
+    }
+}
+@media (max-width: 900px) {
+    #kadroPlayerGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    #kadroPlayerGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 750px) {
+
+    .gkRow {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .gkRow label {
+        margin-top: 10px;
+    }
+
+    .custom-select {
+        width: 100% !important;
+    }
+}
+@media (max-width: 750px) {
+    #kadro .kadroWidget {
+        padding: 15px !important;
+        margin-top: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+}
+@media (max-width: 750px) {
+    .haftaninLayout {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 20px !important;
+        padding: 10px !important;
+    }
+
+    .teamBox {
+        width: 100% !important;
+    }
+}
+@media (max-width: 750px) {
+    #fieldContainer {
+        width: 100% !important;
+    }
+
+    #fieldImg {
+        width: 100% !important;
+        height: auto !important;
+    }
+}
+@media (max-width: 750px) {
+    #playersOnField .playerOnField {
+        transform: scale(0.7);
+        transform-origin: center;
+    }
+}
+@media (max-width: 750px) {
+    .hk-list {
+        padding: 10px !important;
+        font-size: 14px !important;
+    }
+}
+@media (max-width: 750px) {
+    .page {
+        padding: 15px !important;
+        box-sizing: border-box;
+    }
+
+    h2 {
+        font-size: 22px !important;
+        margin-bottom: 15px !important;
+    }
+}
+@media (max-width: 750px) {
+    .btn {
+        width: 100% !important;
+        padding: 12px !important;
+        font-size: 15px !important;
+        border-radius: 10px !important;
+    }
+
+    button {
+        cursor: pointer;
+    }
+}
+@media (max-width: 750px) {
+    input[type="text"],
+    input[type="number"],
+    input[type="password"],
+    select {
+        width: 100% !important;
+        padding: 12px !important;
+        font-size: 15px !important;
+        border-radius: 8px !important;
+        box-sizing: border-box;
+    }
+}
+@media (max-width: 750px) {
+    .modal-content {
+        width: 90% !important;
+        padding: 15px !important;
+        border-radius: 10px !important;
+    }
+
+    .modal-content input {
+        width: 100% !important;
+    }
+}
+@media (max-width: 750px) {
+    body {
+        font-size: 15px !important;
+    }
+}
+@media (max-width: 750px) {
+    .page {
+        min-height: calc(100vh - 70px);
+    }
+}
