@@ -1540,67 +1540,8 @@ body {
         text-align: center;
     }
 }
-@media (max-width: 750px) {
 
-    #profilim .profil-box {
-        flex-direction: column;
-        gap: 20px;
-        padding: 15px;
-        width: 100%;
-        margin: 0;
-        box-sizing: border-box;
-    }
 
-    #profilim .profil-left,
-    #profilim .profil-right {
-        width: 100% !important;
-        min-width: unset !important;
-        margin: 0 auto;
-    }
-}
-@media (max-width: 750px) {
-    .fut-card {
-        width: 100% !important;
-        height: auto !important;
-        transform: scale(0.9);
-        transform-origin: top center;
-    }
-
-    .fut-name {
-        font-size: 22px !important;
-    }
-
-    .fut-top .fut-ovr {
-        font-size: 35px !important;
-    }
-
-    .fut-top .fut-pos {
-        font-size: 18px !important;
-    }
-
-    .fut-stats {
-        font-size: 13px !important;
-        grid-template-columns: 100px 100px !important;
-        row-gap: 5px !important;
-    }
-}
-@media (max-width: 750px) {
-    .fm-field {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-        justify-items: center;
-        width: 100% !important;
-        transform: scale(0.95);
-    }
-
-    .fm-card {
-        padding: 10px !important;
-        font-size: 14px !important;
-        width: 100%;
-        text-align: center;
-    }
-}
 @media (max-width: 750px) {
     .photo-actions {
         width: 100%;
@@ -1781,12 +1722,7 @@ body {
         min-height: calc(100vh - 70px);
     }
 }
-@media (max-width: 750px) {
-    .fm-field {
-        transform: scale(0.75);
-        transform-origin: top center;
-        height: 360px !important;
-    }
+
 }
 /* ============================================
    MOBILE RESPONSIVE – CLEAN FINAL VERSION
@@ -1832,21 +1768,6 @@ body {
     }
 
 
-    /* === PROFIL PAGE === */
-    #profilim .profil-box {
-        flex-direction: column;
-        gap: 20px;
-        padding: 15px;
-        width: 100%;
-        margin: 0;
-    }
-
-    #profilim .profil-left,
-    #profilim .profil-right {
-        width: 100% !important;
-        min-width: unset !important;
-        margin: 0 auto;
-    }
 
     .photo-actions {
         width: 100%;
@@ -1857,49 +1778,7 @@ body {
     }
 
 
-    /* === FUT CARD === */
-    .fut-card {
-        width: 100% !important;
-        height: auto !important;
-        transform: scale(0.9);
-        transform-origin: top center;
-    }
 
-    .fut-name { font-size: 22px !important; }
-    .fut-top .fut-ovr { font-size: 35px !important; }
-    .fut-top .fut-pos { font-size: 18px !important; }
-
-    .fut-stats {
-        font-size: 13px !important;
-        grid-template-columns: 100px 100px !important;
-        row-gap: 5px !important;
-    }
-
-
-    /* === FM FIELD (SAHA) — KAYMAYAN SÜRÜM === */
-    /* 🔥 SAHA GRID YAPILMIYOR! Yalnızca scale uygulanıyor! */
-    .fm-field {
-        transform: scale(0.75);
-        transform-origin: top center;
-        height: 360px !important;
-    }
-
-    /* fm-card pozisyonlarını BOZMAMAK için sadece scale kullanıyoruz. */
-    .fm-card {
-        transform: perspective(200px) translateZ(0);
-        font-size: 13px !important;
-    }
-
-
-    /* === FORMATION SELECTION === */
-    .fm-selection {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .fm-selection input {
-        width: 100% !important;
-    }
 
 
     /* === KADRO PAGE === */
@@ -1974,54 +1853,24 @@ body {
         border-radius: 10px !important;
     }
 }
-@media (max-width: 750px) {
-    .profil-right {
-        transform: scale(0.78);
-        transform-origin: top center;
-        width: 100%;
-    }
-
-    .fm-field {
-        width: 100%;
-        max-width: 350px;
-        height: auto;
-    }
-}
+/* ================================
+   FUT CARD – MOBILE PERFECT COPY
+================================*/
 @media (max-width: 750px) {
 
-    .profil-right {
-        transform: scale(0.78);
-        transform-origin: top center;
-        width: 100%;
-        margin-top: -20px;
+    .profil-left {
+        width: 100% !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
-
-    .fm-field {
-        width: 350px !important;
-        height: 450px !important;
-        margin: auto;
-        position: relative;
-    }
-}
-@media (max-width: 750px) {
-    .fut-card {
-        transform: scale(0.85);
-        margin-bottom: -20px;
-    }
-}
-/* ===============================================
-   FUT CARD – MOBILE PERFECT COPY (max-width: 750px)
-================================================ */
-@media (max-width: 750px) {
 
     .fut-card {
         width: 320px !important;
         height: 500px !important;
-        margin: 0 auto;
         position: relative;
+        margin: 0 auto;
         transform: none !important;
-        left: 0;
-        right: 0;
     }
 
     .fut-bg {
@@ -2030,31 +1879,126 @@ body {
         object-fit: contain;
     }
 
+    /* OVR + POS */
     .fut-top {
-        top: 80px !important;
-        left: 40px !important;
-        transform: none !important;
+        top: 75px !important;
+        left: 45px !important;
     }
 
-    .fut-ovr {
-        font-size: 48px !important;
-    }
+    .fut-ovr { font-size: 48px !important; }
+    .fut-pos { font-size: 24px !important; }
 
-    .fut-pos {
-        font-size: 24px !important;
-    }
-
+    /* NAME */
     .fut-name {
-        top: 300px !important;
+        top: 290px !important;
         font-size: 28px !important;
         letter-spacing: 2px;
     }
 
+    /* STATS */
     .fut-stats {
         bottom: 70px !important;
+        font-size: 17px !important;
         grid-template-columns: 120px 120px !important;
+        row-gap: 6px !important;
+    }
+
+    .photo-actions {
+        width: 100%;
+        max-width: 320px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 15px auto 0;
+    }
+}
+/* ===================================
+   SAHA – KAYMAYAN MOBİL SÜRÜM
+===================================*/
+@media (max-width: 750px) {
+
+    .profil-right {
+        transform: none !important;
+        width: 100% !important;
+        display: flex;
+        justify-content: center;
+    }
+
+    .fm-field {
+        width: 330px !important;
+        height: 450px !important;
+        margin: 0 auto;
+        transform: none !important;
+        position: relative;
+    }
+
+    /* Pozisyon kartlarını bozmamak için SCALE YOK */
+    .fm-card {
+        font-size: 13px !important;
+        transform: perspective(200px) translateZ(0);
+    }
+
+    /* Asıl + Yedek Mevki girişleri */
+    .fm-selection {
+        flex-direction: column;
+        width: 100%;
+        max-width: 330px;
+        margin: 20px auto 0;
+        gap: 15px;
+    }
+
+    .fm-selection input {
+        width: 100% !important;
+    }
+}
+/* ============================
+   PROFİL KUTUSU SADELENMİŞ
+=============================*/
+@media (max-width: 750px) {
+
+    #profilim .profil-box {
+        flex-direction: column;
+        gap: 25px;
+        padding: 10px;
+        width: 100%;
+        margin: 0;
+        box-sizing: border-box;
+        align-items: center;
+        text-align: center;
+    }
+
+    #profilim .profil-left,
+    #profilim .profil-right {
+        width: 100% !important;
+        min-width: unset !important;
+    }
+}
+/* =======================
+   BUTON + FORM
+=======================*/
+@media (max-width: 750px) {
+
+    .btn {
+        width: 100% !important;
+        padding: 14px !important;
         font-size: 16px !important;
-        row-gap: 8px !important;
+        border-radius: 10px !important;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="password"],
+    select {
+        width: 100% !important;
+        padding: 12px !important;
+        font-size: 15px !important;
+        border-radius: 8px !important;
+    }
+}
+@media (max-width: 750px) {
+    .modal-content {
+        width: 90% !important;
+        padding: 15px !important;
     }
 }
 
