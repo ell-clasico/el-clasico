@@ -219,7 +219,9 @@ console.log("AÇILAN SAYFA:", id);
     if (id === "profilim") {
         loadProfil();
     }
-
+if (id === "admin") {
+    loadLoginLogs();
+}
     // ⭐ KADRO SAYFASI AÇILDIĞINDA
     if (id === "kadro") {
         loadKadroPlayerGrid();
@@ -324,7 +326,10 @@ async function login() {
 
     currentUser = name;
     localStorage.setItem("hsUser", name);
-
+	await db.collection("loginLogs").add({
+        user: name,
+        timestamp: new Date().toISOString()
+    });
     hideAdminButtons();
     openApp();
     notify("Giriş Yapıldı");
@@ -1877,3 +1882,26 @@ function printTeamOVRs(teamA, teamB) {
     console.log(`⚽ FARK: ${Math.abs(totalA - totalB)}`);
 }
 
+async function loadLoginLogs() {
+    const table = document.getElementById("loginLogsTable");
+    if (!table) return;
+
+    table.innerHTML = "";
+
+    const snap = await db.collection("loginLogs")
+        .orderBy("timestamp", "desc")
+        .get();
+
+    snap.forEach(doc => {
+        const data = doc.data();
+        const t = new Date(data.timestamp);
+
+        table.innerHTML += `
+            <tr>
+                <td>${data.user}</td>
+                <td>${t.toLocaleDateString()}</td>
+                <td>${t.toLocaleTimeString()}</td>
+            </tr>
+        `;
+    });
+}
