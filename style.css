@@ -1987,5 +1987,28 @@ body {
         height: auto;
     }
 }
+@media (max-width: 750px) {
+
+    .profil-right {
+        transform: scale(0.78);
+        transform-origin: top center;
+        width: 100%;
+        margin-top: -20px;
+    }
+
+    .fm-field {
+        width: 350px !important;
+        height: 450px !important;
+        margin: auto;
+        position: relative;
+    }
+}
+@media (max-width: 750px) {
+    .fut-card {
+        transform: scale(0.85);
+        margin-bottom: -20px;
+    }
+}
+
 
 
