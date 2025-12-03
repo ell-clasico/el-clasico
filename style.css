@@ -1781,3 +1781,197 @@ body {
         min-height: calc(100vh - 70px);
     }
 }
+@media (max-width: 750px) {
+    .fm-field {
+        transform: scale(0.75);
+        transform-origin: top center;
+        height: 360px !important;
+    }
+}
+/* ============================================
+   MOBILE RESPONSIVE – CLEAN FINAL VERSION
+   max-width: 750px
+============================================ */
+
+@media (max-width: 750px) {
+
+    /* === PAGE LAYOUT === */
+    body {
+        font-size: 15px;
+        overflow-x: hidden !important;
+    }
+
+    .page {
+        padding: 15px !important;
+        min-height: calc(100vh - 70px);
+        box-sizing: border-box;
+    }
+
+    h2 {
+        font-size: 22px !important;
+        margin-bottom: 15px !important;
+        text-align: center;
+    }
+
+
+    /* === NAVIGATION === */
+    .nav {
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 8px;
+        justify-content: center;
+    }
+
+    .nav-btn {
+        padding: 8px 10px;
+        font-size: 13px;
+        min-width: 90px;
+        flex: 1 1 calc(33% - 12px);
+        border-radius: 10px;
+        text-align: center;
+    }
+
+
+    /* === PROFIL PAGE === */
+    #profilim .profil-box {
+        flex-direction: column;
+        gap: 20px;
+        padding: 15px;
+        width: 100%;
+        margin: 0;
+    }
+
+    #profilim .profil-left,
+    #profilim .profil-right {
+        width: 100% !important;
+        min-width: unset !important;
+        margin: 0 auto;
+    }
+
+    .photo-actions {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px !important;
+    }
+
+
+    /* === FUT CARD === */
+    .fut-card {
+        width: 100% !important;
+        height: auto !important;
+        transform: scale(0.9);
+        transform-origin: top center;
+    }
+
+    .fut-name { font-size: 22px !important; }
+    .fut-top .fut-ovr { font-size: 35px !important; }
+    .fut-top .fut-pos { font-size: 18px !important; }
+
+    .fut-stats {
+        font-size: 13px !important;
+        grid-template-columns: 100px 100px !important;
+        row-gap: 5px !important;
+    }
+
+
+    /* === FM FIELD (SAHA) — KAYMAYAN SÜRÜM === */
+    /* 🔥 SAHA GRID YAPILMIYOR! Yalnızca scale uygulanıyor! */
+    .fm-field {
+        transform: scale(0.75);
+        transform-origin: top center;
+        height: 360px !important;
+    }
+
+    /* fm-card pozisyonlarını BOZMAMAK için sadece scale kullanıyoruz. */
+    .fm-card {
+        transform: perspective(200px) translateZ(0);
+        font-size: 13px !important;
+    }
+
+
+    /* === FORMATION SELECTION === */
+    .fm-selection {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .fm-selection input {
+        width: 100% !important;
+    }
+
+
+    /* === KADRO PAGE === */
+    #kadro .kadroWidget {
+        padding: 15px !important;
+        width: 100% !important;
+        margin-top: 10px !important;
+    }
+
+    .gkRow {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .custom-select {
+        width: 100% !important;
+    }
+
+    #kadroPlayerGrid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+
+    /* === HAFTANIN KADROSU === */
+    .haftaninLayout {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 20px !important;
+        padding: 10px !important;
+    }
+
+    .teamBox {
+        width: 100% !important;
+    }
+
+    #playersOnField .playerOnField {
+        transform: scale(0.7);
+        transform-origin: center;
+    }
+
+
+    /* === GENERAL BUTTONS === */
+    .btn {
+        width: 100% !important;
+        padding: 12px !important;
+        font-size: 15px !important;
+        border-radius: 10px !important;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+
+    /* === FORMS / INPUTS === */
+    input[type="text"],
+    input[type="number"],
+    input[type="password"],
+    select {
+        width: 100% !important;
+        padding: 12px !important;
+        font-size: 15px !important;
+        border-radius: 8px !important;
+        box-sizing: border-box;
+    }
+
+
+    /* === MODAL === */
+    .modal-content {
+        width: 90% !important;
+        padding: 15px !important;
+        border-radius: 10px !important;
+    }
+}
+
