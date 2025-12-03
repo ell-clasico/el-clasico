@@ -1897,7 +1897,7 @@ body {
 
     /* STATS */
     .fut-stats {
-        bottom: 70px !important;
+        bottom: 80px !important;
         font-size: 17px !important;
         grid-template-columns: 120px 120px !important;
         row-gap: 6px !important;
@@ -2001,6 +2001,7 @@ body {
         padding: 15px !important;
     }
 }
+
 
 
 
