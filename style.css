@@ -1974,4 +1974,18 @@ body {
         border-radius: 10px !important;
     }
 }
+@media (max-width: 750px) {
+    .profil-right {
+        transform: scale(0.78);
+        transform-origin: top center;
+        width: 100%;
+    }
+
+    .fm-field {
+        width: 100%;
+        max-width: 350px;
+        height: auto;
+    }
+}
+
 
