@@ -65,7 +65,7 @@
 	<button id="kadroBtn" class="nav-btn" onclick="showPage('kadro')">Kadro Düzenleme</button>
     <button id="adminBtn" class="nav-btn admin-only" style="display:none;" onclick="showPage('admin')">Admin Paneli</button>
     <button id="gaBtn" class="nav-btn admin-only" style="display:none;" onclick="showPage('gaYonetim')">Gol Yönetimi</button>
-    <button id="winBtn" class="nav-btn admin-only" style="display:none;" onclick="showPage('winYonetim')">Kazanan Yönetimi</button>
+    <button id="winBtn" class="nav-btn admin-only" style="display:none;" onclick="showPage('kazananYonetim')">Kazanan Yönetimi</button>
 
     <!-- Çıkış -->
     <button class="nav-btn logout-btn" onclick="logout()">Çıkış</button>
@@ -232,6 +232,21 @@
         </div>
 
     </div>
+	<div id="userAttendancePanel" style="margin-top:20px;">
+    <h3>Bu Hafta Maça Geliyor musun?</h3>
+    <div id="comingBox" class="coming-container">
+    <label class="switch">
+        <input type="checkbox" id="comingCheck">
+        <span class="slider"></span>
+    </label>
+
+    <span class="comingText">Maça geliyorum</span>
+
+    <div id="comingStatus" class="coming-status"></div>
+</div>
+    <button class="btn" onclick="saveAttendance()">Kaydet</button>
+</div>
+
 
 </div>
 
@@ -269,6 +284,9 @@
 
         <button id="buildBtn">KADROYU OLUŞTUR</button>
 
+<button class="btn danger" onclick="resetWeek()" style="margin-top:20px;">
+    Yeni Hafta Başlat
+</button>
 
 
     </div>
@@ -374,16 +392,21 @@
 
 
 <!-- KAZANAN YÖNETİMİ -->
-<div id="winYonetim" class="page">
+<!-- KAZANAN YÖNETİMİ -->
+<div id="kazananYonetim" class="page">
+
     <h2>Kazanan Yönetimi</h2>
 
-    <div class="custom-multi" data-id="winnerSelect">
-        <div class="multi-selected"></div>
-        <div class="custom-options"></div>
-    </div>
+    <!-- KADRO OLUŞTURDAKİYLE AYNI GRID CLASS -->
+    <div id="winnerPlayerGrid" class="player-grid"></div>
 
-    <button class="btn" onclick="kazananKaydet()">Kaydet</button>
+    <button id="winnerSaveBtn" onclick="kazananKaydet()" class="btn" style="margin-top:20px;">
+        Kazananları Kaydet
+    </button>
+
 </div>
+
+
 
 
 <script src="firebase.js"></script>
