@@ -2218,19 +2218,10 @@ body {
     #playersOnField .playerName {
         font-size: 11px !important;
         margin-top: 2px !important;
-    }
+    }   }
 
-    /* Tüm markerları saha içine almak için X eksenini biraz içeri çekiyoruz */
-    #playersOnField .playerMark {
-        /* %50–50 translate korunuyor */
-        transform: translate(-50%, -50%) scale(0.95) !important;
-    }
 
-    /* SAĞA ve SOLA TAŞAN FORMALARI TOPLAMDA %6 İÇERİ ÇEKME */
-    #playersOnField .playerMark {
-        left: calc(var(--x) * 0.94) !important;
-    }
-}
+
 
 
 
