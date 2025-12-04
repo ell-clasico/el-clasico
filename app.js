@@ -1713,30 +1713,39 @@ function posTranslate(code) {
 async function loadHaftaninKadro() {
 
     
-
     const userPanel  = document.getElementById("userAttendancePanel");
     const squadPanel = document.getElementById("weeklySquadPanel");
 
-    // ⭐ SAYFA AÇILIR AÇILMAZ HER ŞEYİ KAPAT — AMA NULL KONTROLÜ İLE
+    // Sayfa açılınca her şeyi sıfırla
     if (userPanel) userPanel.style.display = "none";
     if (squadPanel) squadPanel.style.display = "none";
 
     const snap = await db.collection("haftaninKadro").doc("latest").get();
+const noteSnap = await db.collection("weekNote").doc("latest").get();
+const noteText = noteSnap.exists ? noteSnap.data().text : "";
 
-    // ==============================
-    // KADRO YOKSA
-    // ==============================
+const noteBox = document.getElementById("weekNoteBox");
+
+if (noteBox) {
+    if (noteText.trim() === "") {
+        noteBox.style.display = "none";  // ✔️ Not yoksa tamamen gizle
+    } else {
+        noteBox.style.display = "block"; // ✔️ Not varsa göster
+        noteBox.innerText = noteText;
+    }
+}
+
+    // =====================================
+    // ⭐ KADRO YOKSA → Kullanıcı paneli açılacak
+    // =====================================
     if (!snap.exists) {
 
-        if (currentUser !== "ADMIN") {
-            if (userPanel) {
-                userPanel.style.display = "block";
-                setTimeout(() => loadUserAttendanceState(), 50);
-            }
+        if (currentUser !== "ADMIN" && userPanel) {
+            userPanel.style.display = "block";   // sadece bu durumda aç
+            setTimeout(() => loadUserAttendanceState(), 50);
         }
 
-        if (squadPanel) squadPanel.style.display = "none";
-
+        // Saha ve listeleri temizle
         const teamABox = document.getElementById("haftaTeamA");
         const teamBBox = document.getElementById("haftaTeamB");
         const field    = document.getElementById("playersOnField");
@@ -1748,19 +1757,13 @@ async function loadHaftaninKadro() {
         return;
     }
 
-    // ==============================
-    // KADRO VARSA
-    // ==============================
-    if (squadPanel) squadPanel.style.display = "block";
 
-    if (currentUser !== "ADMIN") {
-        if (userPanel) {
-            userPanel.style.display = "block";
-            setTimeout(() => loadUserAttendanceState(), 50);
-        }
-    } else {
-        if (userPanel) userPanel.style.display = "none";
-    }
+    // =====================================
+    // ⭐ KADRO VARSA → kullanıcı paneli ASLA açılmayacak
+    // =====================================
+
+    if (userPanel) userPanel.style.display = "none";  // 🔥 en kritik satır
+    if (squadPanel) squadPanel.style.display = "block";
 
 
 
@@ -1838,25 +1841,25 @@ async function loadHaftaninKadro() {
     field.innerHTML = "";
 
     const coordsA = {
-        "GK":  { x: 8, y: 52 },
-        "CB":{ x: 20, y: 52 },
-        "LB":  { x: 25, y: 20 },
-        "RB":  { x: 25, y: 80 },
-        "CM":{ x: 45, y: 52 },
-        "LW":  { x: 60, y: 15 },
-        "RW":  { x: 60, y: 85 },
-        "ST":  { x: 72, y: 52 }
+        "GK":  { x: 8, y: 44 },
+        "CB":{ x: 20, y: 44 },
+        "LB":  { x: 25, y: 17 },
+        "RB":  { x: 25, y: 70 },
+        "CM":{ x: 45, y: 44 },
+        "LW":  { x: 60, y: 12 },
+        "RW":  { x: 60, y: 77 },
+        "ST":  { x: 72, y: 44 }
     };
 
     const coordsB = {
-        "GK":  { x: 92, y: 52 },
-        "CB":{ x: 80, y: 52 },
-        "LB":  { x: 75, y: 80 },
-        "RB":  { x: 75, y: 20 },
-        "CM":{ x: 55, y: 52 },
-        "LW":  { x: 40, y: 85 },
-        "RW":  { x: 40, y: 15 },
-        "ST":  { x: 28, y: 52 }
+        "GK":  { x: 92, y: 44 },
+        "CB":{ x: 80, y: 44 },
+        "LB":  { x: 75, y: 70 },
+        "RB":  { x: 75, y: 17 },
+        "CM":{ x: 55, y: 44 },
+        "LW":  { x: 40, y: 77 },
+        "RW":  { x: 40, y: 12 },
+        "ST":  { x: 28, y: 44 }
     };
 
     function drawOnField(player, pos, team) {
@@ -2139,7 +2142,11 @@ async function resetWeek() {
     await db.collection("attendance").get().then(q =>
         q.forEach(d => d.ref.delete())
     );
-
+	 const note = document.getElementById("weekNoteInput").value || "";
+    await db.collection("weekNote").doc("latest").set({
+        text: note,
+        timestamp: new Date().toISOString()
+    });
     await db.collection("haftaninKadro").doc("latest").delete();
 
     notify("Yeni hafta başlatıldı!");
