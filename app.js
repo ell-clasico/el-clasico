@@ -13,7 +13,7 @@ const FORMA_A = "https://i.hizliresim.com/1qy6nk5.png";
 const FORMA_B = "https://i.hizliresim.com/82yu2gw.png"; 
 let selects = {};
 let multiSelects = {};
-
+.
 // ==========================================================
 // GLOBAL CACHE — TÜM VERİLERİ 1 KERE ÇEKER
 // ==========================================================
