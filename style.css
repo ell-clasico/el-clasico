@@ -15,7 +15,7 @@ body {
     overflow-x: hidden;
 }
 
-/* BG */
+/* BG. */
 .bg {
     position: fixed;
     inset: 0;
@@ -2224,6 +2224,7 @@ body {
         transform: translateY(-18px); /* İstersen -10 / -25 yapabilirsin */
     }
 }
+
 
 
 
