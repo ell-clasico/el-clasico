@@ -215,21 +215,68 @@ function showPage(id) {
         alert("Admin için profil bölümü kapalı.");
         return;
     }
-console.log("AÇILAN SAYFA:", id);
+
+    console.log("AÇILAN SAYFA:", id);
+
     if (id === "profilim") {
         loadProfil();
     }
-if (id === "admin") {
-    loadLoginLogs();
-}
+
+    if (id === "admin") {
+        loadLoginLogs();
+    }
+	if (id === "kazananYonetim") {
+    loadWinnerPlayerGrid();
+}	
+
     // ⭐ KADRO SAYFASI AÇILDIĞINDA
     if (id === "kadro") {
         loadKadroPlayerGrid();
-      
+
+        // ⭐ NEW → Reset sonrası UI boşaltılacaksa burada çalışsın
+        if (window.clearKadroUIPending) {
+            clearKadroUI();
+            window.clearKadroUIPending = false;
+        }
     }
-if (id === "haftaninKadro") {
-    loadHaftaninKadro();
+
+    if (id === "haftaninKadro") {
+
+    (async () => {
+        await loadHaftaninKadro();
+        
+    })();
+
+    // ⭐ Kaydet butonunu burada DOM garanti yüklenmiş durumda
+    const saveBtn = document.getElementById("comingSaveBtn");
+
+    if (saveBtn && !saveBtn._eventAdded) {
+
+        saveBtn._eventAdded = true;
+
+        saveBtn.addEventListener("click", async () => {
+            const check = document.getElementById("comingCheck");
+            const status = document.getElementById("comingStatus");
+
+            if (currentUser && currentUser !== "ADMIN") {
+                await db.collection("attendance").doc(currentUser).set({
+                    user: currentUser,
+                    coming: check.checked,
+                    timestamp: new Date().toISOString()
+                });
+            }
+
+            // UI anında güncelle
+            status.innerText = check.checked
+                ? "✅ Bu hafta maça geliyorsun!"
+                : "";
+
+            notify("Kaydedildi!");
+        });
+    }
 }
+
+
 
     if (id !== "login") {
         localStorage.setItem("hsPage", id);
@@ -755,12 +802,42 @@ async function loadKazananlar() {
         `;
     });
 }
+let winnerSelected = [];
+
+function loadWinnerPlayerGrid() {
+    const grid = document.getElementById("winnerPlayerGrid");
+    if (!grid) return; // güvenlik önlemi
+
+    grid.innerHTML = "";
+
+    CACHE.players.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "player-item";
+        div.innerText = p.name;
+        div.dataset.id = p.id;
+
+        div.onclick = () => {
+            if (div.classList.contains("selected")) {
+                div.classList.remove("selected");
+                winnerSelected = winnerSelected.filter(x => x !== p.name);
+            } else {
+                div.classList.add("selected");
+                winnerSelected.push(p.name);
+            }
+        };
+
+        grid.appendChild(div);
+    });
+}
 
 // ==========================================================
 // KAZANAN KAYDET
 // ==========================================================
 async function kazananKaydet() {
-    let arr = multiSelects["winnerSelect"].values;
+
+    // 🔥 Artık grid üzerinden seçilen oyuncuları kullanıyoruz
+    let arr = winnerSelected;  
+
     if (!arr.length) return alert("Oyuncu seç!");
 
     await db.collection("winners").add({
@@ -768,9 +845,18 @@ async function kazananKaydet() {
         date: new Date().toISOString()
     });
 
-    await loadAll();
     notify("Kaydedildi");
+
+    // 🔥 Seçimleri ekrandan temizle
+    winnerSelected = [];
+    document.querySelectorAll("#winnerPlayerGrid .player-item")
+        .forEach(el => el.classList.remove("selected"));
+
+    // Yeniden yükle
+    await loadAll();
+    loadWinnerPlayerGrid();
 }
+
 
 // ==========================================================
 // LOGOUT
@@ -1029,6 +1115,17 @@ let selectedPlayers = [];
 /* 16 oyuncu gridini yükle */
 async function loadKadroPlayerGrid() {
     const snap = await db.collection("players").get();
+    const attSnap = await db.collection("attendance").get();
+
+    // Katılım yapanları map’e alıyoruz
+    let comingMap = {};
+    attSnap.forEach(a => {
+        const data = a.data();
+        // coming: true olan kullanıcıları kaydet
+        if (data.coming) {
+            comingMap[data.user] = true;
+        }
+    });
 
     const grid = document.getElementById("kadroPlayerGrid");
     grid.innerHTML = "";
@@ -1043,24 +1140,39 @@ async function loadKadroPlayerGrid() {
         div.innerText = p.name;
         div.dataset.id = id;
 
+        // ⭐ KATILIM YAPAN OYUNCULAR OTOMATİK SEÇİLİ GELİR
+        if (comingMap[p.name]) {
+            div.classList.add("selected");
+            selectedPlayers.push(id);
+        }
+
+        // 🔥 Mevcut seçim tıklama sistemi — hiçbir şey değişmedi
         div.addEventListener("click", () => {
             if (div.classList.contains("selected")) {
                 div.classList.remove("selected");
                 selectedPlayers = selectedPlayers.filter(x => x !== id);
             } else {
+
+                // 16 oyuncu sınırı (dokunmadım)
                 if (selectedPlayers.length >= 16) {
                     alert("En fazla 16 oyuncu seçebilirsin!");
                     return;
                 }
+
                 div.classList.add("selected");
                 selectedPlayers.push(id);
             }
+
             updateGKDropdowns();
         });
 
         grid.appendChild(div);
     });
+
+    // İlk girişte kaleci dropdownları çalışması için
+    updateGKDropdowns();
 }
+
 
 /* Kaleci dropdownlarını güncelle */
 function updateGKDropdowns() {
@@ -1544,10 +1656,18 @@ document.getElementById("buildBtn").onclick = async () => {
         createdAt: new Date().toISOString()
     };
 
+    // ⭐ 1) Kadroyu Firestore'a kaydediyoruz (senin sistemin)
     await db.collection("haftaninKadro").doc("latest").set(dataToSave);
+
+    // ⭐ 2) — EKLEDİĞİM KISIM —
+    //    Kullanıcıların "geliyorum" işaretlerini tamamen temizle
+    await db.collection("attendance").get().then(q =>
+        q.forEach(d => d.ref.delete())
+    );
 
     alert("Kadro oluşturuldu!");
 };
+
 
 
 function loadGKSelectors() {
@@ -1590,10 +1710,64 @@ function posTranslate(code) {
 }
 
 
-
 async function loadHaftaninKadro() {
+
+    
+
+    const userPanel  = document.getElementById("userAttendancePanel");
+    const squadPanel = document.getElementById("weeklySquadPanel");
+
+    // ⭐ SAYFA AÇILIR AÇILMAZ HER ŞEYİ KAPAT — AMA NULL KONTROLÜ İLE
+    if (userPanel) userPanel.style.display = "none";
+    if (squadPanel) squadPanel.style.display = "none";
+
     const snap = await db.collection("haftaninKadro").doc("latest").get();
-    if (!snap.exists) return;
+
+    // ==============================
+    // KADRO YOKSA
+    // ==============================
+    if (!snap.exists) {
+
+        if (currentUser !== "ADMIN") {
+            if (userPanel) {
+                userPanel.style.display = "block";
+                setTimeout(() => loadUserAttendanceState(), 50);
+            }
+        }
+
+        if (squadPanel) squadPanel.style.display = "none";
+
+        const teamABox = document.getElementById("haftaTeamA");
+        const teamBBox = document.getElementById("haftaTeamB");
+        const field    = document.getElementById("playersOnField");
+
+        if (teamABox) teamABox.innerHTML = "";
+        if (teamBBox) teamBBox.innerHTML = "";
+        if (field)    field.innerHTML    = "";
+
+        return;
+    }
+
+    // ==============================
+    // KADRO VARSA
+    // ==============================
+    if (squadPanel) squadPanel.style.display = "block";
+
+    if (currentUser !== "ADMIN") {
+        if (userPanel) {
+            userPanel.style.display = "block";
+            setTimeout(() => loadUserAttendanceState(), 50);
+        }
+    } else {
+        if (userPanel) userPanel.style.display = "none";
+    }
+
+
+
+
+    // ============================
+    // Aşağıdaki bölüm SENİN KODUN — DEĞİŞTİRMEDİM
+    // ============================
 
     const data = snap.data();
     const posMap = data.posMap || {};
@@ -1606,12 +1780,10 @@ async function loadHaftaninKadro() {
 
     const posList = ["GK","CB","LB","RB","CM","LW","RW","ST"];
 
-    // OVR Hesaplayıcı
     const getOVR = (p) => {
-    return p?.matchOVR ?? getOVR_withBonus(p);
-};
+        return p?.matchOVR ?? getOVR_withBonus(p);
+    };
 
-    // Renk sınıfı seçimi
     const getOvrClass = (ovr) => {
         if (ovr >= 85) return "ovr-gold";
         if (ovr >= 75) return "ovr-silver";
@@ -1626,8 +1798,9 @@ async function loadHaftaninKadro() {
 
         const A_player = CACHE.players.find(p => p.id === A_id);
         const B_player = CACHE.players.find(p => p.id === B_id);
-if (A_player) preparePlayerForMatch(A_player);
-if (B_player) preparePlayerForMatch(B_player);
+
+        if (A_player) preparePlayerForMatch(A_player);
+        if (B_player) preparePlayerForMatch(B_player);
 
         const posName = posTranslate(key);
 
@@ -1659,69 +1832,70 @@ if (B_player) preparePlayerForMatch(B_player);
             </div>
         `;
     });
-// === SAHA YERLEŞTİRME ===
-const field = document.getElementById("playersOnField");
-field.innerHTML = "";
 
-// A TAKIMI POZİSYONLARI (SOL TARAF)
-const coordsA = {
-    "GK":  { x: 8, y: 52 },
-    "CB":{ x: 20, y: 52 },
-    "LB":  { x: 25, y: 20 },
-    "RB":  { x: 25, y: 80 },
-    "CM":{ x: 45, y: 52 },
-    "LW":  { x: 60, y: 15 },
-    "RW":  { x: 60, y: 85 },
-    "ST":  { x: 72, y: 52 }
-};
+    // === SAHA YERLEŞTİRME ===
+    const field = document.getElementById("playersOnField");
+    field.innerHTML = "";
 
-// B TAKIMI POZİSYONLARI (SAĞ TARAF)
-const coordsB = {
-    "GK":  { x: 92, y: 52 },
-    "CB":{ x: 80, y: 52 },
-    "LB":  { x: 75, y: 80 },
-    "RB":  { x: 75, y: 20 },
-    "CM":{ x: 55, y: 52 },
-    "LW":  { x: 40, y: 85 },
-    "RW":  { x: 40, y: 15 },
-    "ST":  { x: 28, y: 52 }
-};
+    const coordsA = {
+        "GK":  { x: 8, y: 52 },
+        "CB":{ x: 20, y: 52 },
+        "LB":  { x: 25, y: 20 },
+        "RB":  { x: 25, y: 80 },
+        "CM":{ x: 45, y: 52 },
+        "LW":  { x: 60, y: 15 },
+        "RW":  { x: 60, y: 85 },
+        "ST":  { x: 72, y: 52 }
+    };
 
-function drawOnField(player, pos, team) {
-    if (!player) return;
+    const coordsB = {
+        "GK":  { x: 92, y: 52 },
+        "CB":{ x: 80, y: 52 },
+        "LB":  { x: 75, y: 80 },
+        "RB":  { x: 75, y: 20 },
+        "CM":{ x: 55, y: 52 },
+        "LW":  { x: 40, y: 85 },
+        "RW":  { x: 40, y: 15 },
+        "ST":  { x: 28, y: 52 }
+    };
 
-    const posKey = pos;
-    const c = team === "A" ? coordsA[posKey] : coordsB[posKey];
-    if (!c) return;
+    function drawOnField(player, pos, team) {
+        if (!player) return;
 
-   field.innerHTML += `
-    <div class="playerMark" style="left:${c.x}%; top:${c.y}%;">
-        <div class="formWrapper">
-            <img src="${team === "A" ? FORMA_A : FORMA_B}" class="formImg">
-            <span class="formNumber">${player.matchOVR ?? getOVR_withBonus(player)}</span>
+        const c = team === "A" ? coordsA[pos] : coordsB[pos];
+        if (!c) return;
 
-        </div>
-        <div class="playerName">${player.name}</div>
-    </div>
-`;
+        field.innerHTML += `
+            <div class="playerMark" style="left:${c.x}%; top:${c.y}%;">
+                <div class="formWrapper">
+                    <img src="${team === "A" ? FORMA_A : FORMA_B}" class="formImg">
+                    <span class="formNumber">${player.matchOVR ?? getOVR_withBonus(player)}</span>
+                </div>
+                <div class="playerName">${player.name}</div>
+            </div>
+        `;
+    }
 
-}
+    // ÇİME OYUNCULARI ÇİZ
+    posList.forEach(pos => {
+        drawOnField(
+            CACHE.players.find(p => p.id === posMap[pos]),
+            pos,
+            "A"
+        );
 
-// ÇİME OYUNCULARI ÇİZ
-posList.forEach(pos => {
-   const key = pos;
-
-    const A_player = CACHE.players.find(p => p.id === posMap[key]);
-    const B_player = CACHE.players.find(p => p.id === posMap[key + "2"]);
-
-    drawOnField(A_player, key, "A");
-    drawOnField(B_player, key, "B");
-});
+        drawOnField(
+            CACHE.players.find(p => p.id === posMap[pos + "2"]),
+            pos,
+            "B"
+        );
+    });
 
     console.log("POS MAP:", posMap);
     console.log("TEAM A:", data.teamA);
     console.log("TEAM B:", data.teamB);
 }
+
 
 
 function debugTeamOVR(teamA, teamB) {
@@ -1905,3 +2079,99 @@ async function loadLoginLogs() {
         `;
     });
 }
+async function saveAttendance() {
+    if (!currentUser || currentUser === "ADMIN") return;
+
+    let coming = document.getElementById("comingCheck").checked;
+
+    await db.collection("attendance").doc(currentUser).set({
+        user: currentUser,
+        coming,
+        timestamp: new Date().toISOString()
+    });
+
+    notify("Katılım Kaydedildi");
+}
+async function loadUserAttendanceState() {
+    if (!currentUser || currentUser === "ADMIN") return;
+
+    const check = document.getElementById("comingCheck");
+    const status = document.getElementById("comingStatus");
+
+    const ref = await db.collection("attendance").doc(currentUser).get();
+
+    if (ref.exists) {
+        const coming = ref.data().coming;
+        check.checked = coming;
+    } else {
+        check.checked = false;
+        status.innerText = "";
+    }
+}
+async function resetAllPoints() {
+
+    // 1) Gol / Asist kayıtlarını sil
+    await db.collection("ga").get().then(q =>
+        q.forEach(d => d.ref.delete())
+    );
+
+    // 2) Kazanan listelerini sil
+    await db.collection("winners").get().then(q =>
+        q.forEach(d => d.ref.delete())
+    );
+
+    // 3) Puan geçmişini (ratings) sil — EN İYİ TABLOSU BUNU KULLANIYOR
+    await db.collection("ratings").get().then(q =>
+        q.forEach(d => d.ref.delete())
+    );
+
+    notify("Gol, Kazananlar ve En İyi Oyuncu verileri tamamen sıfırlandı!");
+
+    // 4) Ekranı güncelle
+    await loadAll();
+}
+
+
+
+
+async function resetWeek() {
+    // 1) Firestore temizliği
+    await db.collection("attendance").get().then(q =>
+        q.forEach(d => d.ref.delete())
+    );
+
+    await db.collection("haftaninKadro").doc("latest").delete();
+
+    notify("Yeni hafta başlatıldı!");
+
+    // 2) Kullanıcı ekranındaki tiki sıfırla
+    const ch = document.getElementById("comingCheck");
+    if (ch) ch.checked = false;
+
+    // 3) Kadro düzenleme ekranını tamamen temizle
+    clearKadroUI();
+
+    // 4) Haftanın kadrosu ekranını sıfır moda döndür
+    if (typeof loadHaftaninKadro === "function") {
+        loadHaftaninKadro();
+    }
+}
+
+function clearKadroUI() {
+    // Oyuncu seçimlerini temizle
+    selectedPlayers = [];
+
+    // Grid üzerindeki seçili class'ları sil
+    const items = document.querySelectorAll("#kadroPlayerGrid .player-item");
+    if (items.length > 0) {
+        items.forEach(div => div.classList.remove("selected"));
+    }
+}
+
+
+
+
+
+
+
+
