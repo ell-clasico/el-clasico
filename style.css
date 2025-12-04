@@ -2221,9 +2221,10 @@ body {
     }   }
 @media (max-width: 750px) {
     #playersOnField .playerMark {
-        transform: translateY(-18px); /* İstersen -10 / -25 yapabilirsin */
+        transform: translateY(15px); /* İstersen -10 / -25 yapabilirsin */
     }
 }
+
 
 
 
