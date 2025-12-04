@@ -222,6 +222,25 @@
             <div id="fieldContainer">
                 <img src="https://i.hizliresim.com/272vnxd.jpg" id="fieldImg">
                 <div id="playersOnField"></div>
+				<!-- 📌 HAFTA NOTU GÖSTERİM ALANI -->
+<div id="weekNoteBox"
+     style="
+        display:none;
+        width:100%;
+        margin:20px 0;
+        padding:15px;
+        background:rgba(255,255,255,0.08);
+        border: 3px solid #a347ff;
+        color:white;
+        font-size:17px;
+        border-radius:6px;
+        backdrop-filter: blur(4px);
+		text-align: center;
+		text-shadow: 0 0 4px black;
+		font-weight: bold;
+     ">
+</div>
+
             </div>
         </div>
 
@@ -235,17 +254,20 @@
 	<div id="userAttendancePanel" style="margin-top:20px;">
     <h3>Bu Hafta Maça Geliyor musun?</h3>
     <div id="comingBox" class="coming-container">
-    <label class="switch">
-        <input type="checkbox" id="comingCheck">
-        <span class="slider"></span>
-    </label>
+        <label class="switch">
+            <input type="checkbox" id="comingCheck">
+            <span class="slider"></span>
+        </label>
 
-    <span class="comingText">Maça geliyorum</span>
+        <span class="comingText">Maça geliyorum</span>
 
-    <div id="comingStatus" class="coming-status"></div>
-</div>
+        <div id="comingStatus" class="coming-status"></div>
+    </div>
     <button class="btn" onclick="saveAttendance()">Kaydet</button>
 </div>
+
+
+
 
 
 </div>
@@ -283,6 +305,21 @@
         </div>
 
         <button id="buildBtn">KADROYU OLUŞTUR</button>
+<div style="margin-bottom:15px;">
+    <label style="color:white; font-size:16px;">Bu Haftanın Notu:</label>
+    <input id="weekNoteInput" 
+           type="text" 
+           placeholder="Örn: Bu hafta maç 22:00'da başlayacak."
+           style="
+                width:100%;
+                padding:10px;
+                border-radius:6px;
+                border:none;
+                margin-top:5px;
+                background:rgba(255,255,255,0.15);
+                color:white;
+           ">
+</div>
 
 <button class="btn danger" onclick="resetWeek()" style="margin-top:20px;">
     Yeni Hafta Başlat
