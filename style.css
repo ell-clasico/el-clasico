@@ -2203,36 +2203,36 @@ body {
 }
 @media (max-width: 750px) {
 
-    /* Saha genel ölçek */
-    #fieldContainer {
-        transform: scale(0.58);
-        transform-origin: top center;
-        margin-top: -40px; /* Üstteki boşluğu kapatır */
-        margin-bottom: -70px; /* Altta boşluk kapatır */
-    }
-
-    /* Forma küçültme */
+    /* Forma hafif küçültme */
     #playersOnField .formImg {
-        width: 32px !important;
+        width: 40px !important;
     }
 
-    /* OVR küçültme */
+    /* OVR boyutu */
     #playersOnField .formNumber {
-        font-size: 11px !important;
-        top: 3px !important;
+        font-size: 13px !important;
+        top: 4px !important;
     }
 
-    /* Oyuncu ismi */
+    /* İsim boyutu */
     #playersOnField .playerName {
-        font-size: 10px !important;
-        margin-top: 0px !important;
+        font-size: 11px !important;
+        margin-top: 2px !important;
     }
 
-    /* Her bir işaret noktasını biraz küçült */
+    /* Tüm markerları saha içine almak için X eksenini biraz içeri çekiyoruz */
     #playersOnField .playerMark {
-        transform: scale(0.75) translate(-50%, -50%) !important;
+        /* %50–50 translate korunuyor */
+        transform: translate(-50%, -50%) scale(0.95) !important;
+    }
+
+    /* SAĞA ve SOLA TAŞAN FORMALARI TOPLAMDA %6 İÇERİ ÇEKME */
+    #playersOnField .playerMark {
+        left: calc(var(--x) * 0.94) !important;
     }
 }
+
+
 
 
 
