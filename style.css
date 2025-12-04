@@ -2055,10 +2055,129 @@ body {
 .log-table th {
     background: #1f2937;
 }
+/* Konteyner */
+.coming-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+    font-size: 18px;
+    color: #fff;
+    position: relative;
+}
+
+/* Switch Kutusu */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+}
+
+/* Gerçek checkbox gizleniyor */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Slider (arka plan) */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0;
+    right: 0; bottom: 0;
+    background-color: #777;
+    border-radius: 34px;
+    transition: .3s;
+}
+
+/* Top */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .3s;
+}
+
+/* Aktif olduğunda */
+.switch input:checked + .slider {
+    background-color: #28d17c;
+}
+
+.switch input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+/* Durum metni */
+.coming-status {
+    margin-top: 10px;
+    font-size: 16px;
+    color: #28ff9f;
+}
+#winnerPlayerGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+}
+
+#winnerPlayerGrid .player-item {
+    padding: 10px;
+    background: #232323;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: .2s;
+}
+
+#winnerPlayerGrid .player-item.selected {
+    background: #0d6efd;
+    color: white;
+    transform: scale(1.06);
+}
 
 
 
+#kazananYonetim .player-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+}
 
+/* Her oyuncu kutusu (Kadro ekranındakiyle %100 aynı görünüm) */
+#kazananYonetim .player-item {
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.22);
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: #fff;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(6px);
+    transition: 0.2s;
+}
+
+/* Hover efekti */
+#kazananYonetim .player-item:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Seçilmiş oyuncu */
+#kazananYonetim .player-item.selected {
+    background: rgba(138, 43, 226, 0.45); /* mor glow */
+    border-color: #b57bff;
+    box-shadow: 0 0 12px #b57bff80;
+}
 
 
 
