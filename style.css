@@ -2217,8 +2217,14 @@ body {
     /* İsim boyutu */
     #playersOnField .playerName {
         font-size: 11px !important;
-        margin-top: 2px !important;
+        margin-top: -1px !important;
     }   }
+@media (max-width: 750px) {
+    #playersOnField .playerMark {
+        transform: translateY(-18px); /* İstersen -10 / -25 yapabilirsin */
+    }
+}
+
 
 
 
