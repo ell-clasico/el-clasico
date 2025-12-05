@@ -2167,7 +2167,7 @@ async function resetWeek() {
 }
 
 function clearKadroUI() {
-    // Oyuncu seçimlerini temizle
+    // Oyuncu seçimlerini temizlee
     selectedPlayers = [];
 
     // Grid üzerindeki seçili class'ları sil
