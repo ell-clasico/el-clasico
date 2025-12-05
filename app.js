@@ -1299,7 +1299,7 @@ function getPlayerPositions(p) {
 
 
 /* ==========================================================
-   TAKIM DENGELEYİCİ (OVR BALANCER)
+   TAKIM DENGELEYİCİ (OVR BALANCER).
 ========================================================== */
 function balanceTeams(teamA, teamB, posMap) {
 
