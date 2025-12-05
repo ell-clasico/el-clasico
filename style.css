@@ -15,7 +15,7 @@ body {
     overflow-x: hidden;
 }
 
-/* BG. .*/
+/* BG. */
 .bg {
     position: fixed;
     inset: 0;
@@ -2297,7 +2297,6 @@ body {
     display: block !important;
     white-space: normal !important;
 }
-
 
 
 
