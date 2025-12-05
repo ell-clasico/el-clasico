@@ -716,7 +716,7 @@ input {
 .player-pos {
     margin-top: 8px;
     padding: 6px;
-    background: rgba(255,255,255,0.1);
+   
     border-radius: 10px;
     font-size: 14px;
 }
@@ -2224,6 +2224,80 @@ body {
         transform: translateY(-40px); /* İstersen -10 / -25 yapabilirsin */
     }
 }
+
+.card .ovr-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: linear-gradient(145deg, #ffe100, #d4b400);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 900;
+    color: #3a2a00;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    box-shadow: 0 0 8px rgba(255,215,0,0.7);
+    z-index: 5;
+}
+.card {
+    position: relative;
+    padding-top: 35px !important; /* kartın üstünü biraz boşaltır */
+}
+
+.card img {
+    margin-top: 25px;   /* fotoğrafı aşağı indirir */
+}
+
+.card h3 {
+    margin-top: 12px !important;  /* ismi aşağı indirir */
+}
+
+.card h3 {
+    font-size: 20px !important;
+    font-weight: 900 !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 6px rgba(0,0,0,0.9);
+    margin-top: 15px !important;
+    letter-spacing: 1px;
+}
+.card .player-pos {
+   
+    padding: 12px;
+    border-radius: 12px;
+    margin-top: 0px !important;
+    text-align: center;
+
+}
+
+.card .player-pos p {
+    margin: 4px 0 !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #f1f1f1 !important;
+    text-shadow: 0 0 5px rgba(0,0,0,0.8);
+	margin-top: -10px !important;
+}
+.card .player-pos strong {
+    color: #ffd700 !important; /* altın renk */
+    font-weight: 900 !important;
+	margin-top: -15px !important;
+}
+
+.card .player-pos p {
+    white-space: nowrap !important;
+}
+
+.card .player-pos {
+    text-align: center;
+    line-height: 1.35;
+}
+
+.card .player-pos p {
+
+    display: block !important;
+    white-space: normal !important;
+}
+
 
 
 
