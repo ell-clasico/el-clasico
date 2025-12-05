@@ -528,27 +528,37 @@ async function loadPlayers() {
 
     // Listeyi ekrana bas
     sortedPlayers.forEach(p => {
+
         const photo = p.photo || DEFAULT_PHOTO;
 
+        // ⭐ PROFİLDEKİYLE AYNI BONUSLU OVR
+        const ovr = getOVR_withBonus(p);
+
         box.innerHTML += `
-            <div class="card">
-                <img src="${photo}">
-                <h3>${p.name}</h3>
+    <div class="card" style="position: relative;">
 
-                <div class="player-pos">
-                    <p><strong>Asıl Mevki:</strong> ${p.mainPos || '-'}</p>
-                    <p><strong>Yedek Mevki:</strong> ${p.subPos || '-'}</p>
-                </div>
+        <div class="ovr-badge">${ovr}</div>   <!-- ⭐ SOL ÜSTTE BONUSLU OVR -->
 
-                ${
-                    currentUser === "ADMIN"
-                        ? `<button class="rate-btn" onclick="openRatePanel('${p.id}', '${p.name}')">Puanla</button>`
-                        : ``
-                }
-            </div>
-        `;
+        <img src="${photo}">
+
+        <h3>${p.name}</h3>
+
+        <div class="player-pos">
+            <p><strong>Asıl Mevki:</strong> ${p.mainPos || '-'}</p>
+            <p><strong>Yedek Mevki:</strong> ${p.subPos || '-'}</p>
+        </div>
+
+        ${
+            currentUser === "ADMIN"
+                ? `<button class="rate-btn" onclick="openRatePanel('${p.id}', '${p.name}')">Puanla</button>`
+                : ``
+        }
+    </div>
+`;
+
     });
 }
+
 
 
 
