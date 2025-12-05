@@ -1239,40 +1239,24 @@ function initCustomSelects() {
    POZİSYON NORMALİZASYONU
 ================================ */
 function normalizePos(posName) {
-
     if (!posName) return null;
-	posName = posName.toString().trim().toLowerCase();
-    let p = posName
-        .toString()
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, " ");
+    posName = posName.toString().trim().toLowerCase();
 
     const map = {
         "kaleci": "GK",
-
-        "sol bek": "LB",
-        "sağ bek": "RB",
-        "sag bek": "RB",
-
-        "stoper": "CB",
-        "cb": "CB",
-        "cb-r": "CB",
-
-        "sol kanat": "LW",
-        "sağ kanat": "RW",
-        "sag kanat": "RW",
-
-        "merkez orta": "CM",
-        "cm": "CM",
-        "cm-r": "CM",
-
-        "santrafor": "ST",
-        "forvet": "ST"
+        "sol bek": "LB", "solbek": "LB",
+        "sağ bek": "RB", "sag bek": "RB", "sağbek": "RB", "sagbek": "RB",
+        "stoper": "CB", "defans": "CB",
+        "sol kanat": "LW", "solkanat": "LW",
+        "sağ kanat": "RW", "sag kanat": "RW", "sağkanat": "RW", "sagkanat": "RW",
+        "merkez orta": "CM", "orta saha": "CM", "ortasaha": "CM",
+        "santrafor": "ST", "forvet": "ST"
     };
 
-    return map[p] || null;
+    return map[posName] || posName.toUpperCase();
 }
+
+
 
 
 
@@ -1304,11 +1288,12 @@ function getPlayerPositions(p) {
     return {
         id: p.id,
         name: p.name,
-    main: mapPosition(p.mainPos),   // normalize ile karıştırma
-        sub: mapPosition(p.subPos),
-        ovr: p.matchOVR              // BONUSLU OVR
+        main: normalizePos(p.mainPos),
+        sub: normalizePos(p.subPos),
+        ovr: p.matchOVR
     };
 }
+
 
 
 
@@ -1319,76 +1304,144 @@ function getPlayerPositions(p) {
 function balanceTeams(teamA, teamB, posMap) {
 
     const getPlayer = id => CACHE.players.find(p => p.id === id);
+    const getOVR = p => p?.matchOVR ?? 0;
 
-    // ❗ SADECE BONUSLU OVR KULLAN — yeniden hesaplama YASAK
-    const getOVR = p => (p?.matchOVR ?? 0);
+    const GROUP_LIMIT = {
+    attack: 15,
+    defense: 15,
+    midfield: 10
+};
 
-    const sum = arr => arr.reduce((t, id) => t + getOVR(getPlayer(id)), 0);
+    function computeGroups() {
+        const gp = pos => getOVR(getPlayer(posMap[pos])) || 0;
 
-    let attempts = 0;
+        return {
+            atkA: gp("ST") + gp("RW") + gp("LW"),
+            atkB: gp("ST2") + gp("RW2") + gp("LW2"),
 
-    while (attempts++ < 120) {
+            defA: gp("LB") + gp("CB") + gp("RB"),
+            defB: gp("LB2") + gp("CB2") + gp("RB2"),
 
-        let sumA = sum(teamA);
-        let sumB = sum(teamB);
-        let diff = sumA - sumB;
+            midA: gp("CM"),
+            midB: gp("CM2")
+        };
+    }
 
-        // hedef fark
-        if (Math.abs(diff) <= 15) break;
+    function groupsOK(G) {
+        let atk = Math.abs(G.atkA - G.atkB);
+        let def = Math.abs(G.defA - G.defB);
+        let mid = Math.abs(G.midA - G.midB);
 
-        let strong = diff > 0 ? teamA : teamB;
-        let weak   = diff > 0 ? teamB : teamA;
+        if (atk > GROUP_LIMIT.attack) return false;
+        if (def > GROUP_LIMIT.defense) return false;
+        if (mid > GROUP_LIMIT.midfield) return false;
 
-        let bestSwap = null;
-        let bestImpact = Infinity;
+        if (atk === 15 && def !== 15) return false;
+        if (def === 15 && atk !== 15) return false;
 
-        // EN İYİ SWAP’I ARIYORUZ
-        for (let sid of strong) {
+        return true;
+    }
 
-            // ❌ GK ASLA TAKIM DEĞİŞTİREMEZ
-            if (sid === posMap["GK"] || sid === posMap["GK2"]) continue;
 
-            const sp = getPlayer(sid);
-            const sOvr = getOVR(sp);
+    function tryGroupSwap() {
 
-            for (let wid of weak) {
+    const G = computeGroups();
 
-                // ❌ GK ASLA TAKIM DEĞİŞTİREMEZ
-                if (wid === posMap["GK"] || wid === posMap["GK2"]) continue;
+    let diffs = {
+        attack: Math.abs(G.atkA - G.atkB),
+        defense: Math.abs(G.defA - G.defB),
+        midfield: Math.abs(G.midA - G.midB)
+    };
 
-                const wp = getPlayer(wid);
-                const wOvr = getOVR(wp);
+    // En büyük sorunu hedef al
+    let target = Object.keys(diffs).sort((a,b)=> diffs[b]-diffs[a])[0];
 
-                let newA = sumA - sOvr + wOvr;
-                let newB = sumB - wOvr + sOvr;
-                let impact = Math.abs(newA - newB);
+    if (diffs[target] <= GROUP_LIMIT[target]) return false;
 
-                if (impact < bestImpact) {
-                    bestImpact = impact;
-                    bestSwap = { sid, wid };
-                }
+    const groupPositions = {
+        attack: ["ST", "LW", "RW"],
+        defense: ["LB", "CB", "RB"],
+        midfield: ["CM"]
+    }[target];
+
+    let bestGain = 0;
+    let best = null;
+
+    for (let posA of groupPositions) {
+        for (let posB of groupPositions) {
+
+            let A = getPlayer(posMap[posA]);
+            let B = getPlayer(posMap[posB+"2"]);
+            if (!A || !B) continue;
+
+            let before =
+                target === "attack"  ? Math.abs(G.atkA - G.atkB) :
+                target === "defense" ? Math.abs(G.defA - G.defB) :
+                Math.abs(G.midA - G.midB);
+
+            let afterA =
+                target === "attack"  ? G.atkA - getOVR(A) + getOVR(B) :
+                target === "defense" ? G.defA - getOVR(A) + getOVR(B) :
+                G.midA - getOVR(A) + getOVR(B);
+
+            let afterB =
+                target === "attack"  ? G.atkB - getOVR(B) + getOVR(A) :
+                target === "defense" ? G.defB - getOVR(B) + getOVR(A) :
+                G.midB - getOVR(B) + getOVR(A);
+
+            let after = Math.abs(afterA - afterB);
+
+            let gain = before - after;
+            if (gain > bestGain) {
+                bestGain = gain;
+                best = { posA, posB };
             }
-        }
-
-        if (!bestSwap) break;
-
-        const { sid, wid } = bestSwap;
-
-        // swap uygula
-        strong.splice(strong.indexOf(sid), 1);
-        weak.splice(weak.indexOf(wid), 1);
-        strong.push(wid);
-        weak.push(sid);
-
-        // POSMAP güncelleme
-        for (let k in posMap) {
-            if (posMap[k] === sid) posMap[k] = wid;
-            else if (posMap[k] === wid) posMap[k] = sid;
         }
     }
 
+    if (!best) return false;
+
+    // SWAP OPERASYONU
+    let aId = posMap[best.posA];
+    let bId = posMap[best.posB + "2"];
+
+    posMap[best.posA] = bId;
+    posMap[best.posB + "2"] = aId;
+
+    let ai = teamA.indexOf(aId);
+    let bi = teamB.indexOf(bId);
+
+    if (ai > -1) teamA[ai] = bId;
+    if (bi > -1) teamB[bi] = aId;
+
+    return true;
+}
+
+
+    // Ana dengeleme döngüsü
+    for (let i = 0; i < 60; i++) {
+        let G = computeGroups();
+        if (groupsOK(G)) break;
+        if (!tryGroupSwap()) break;
+    }
+(function debugGroups(){
+    const G = computeGroups();
+
+    console.log("========== BÖLGESEL FARKLAR ==========");
+    console.log(`HÜCUM  A: ${G.atkA} | B: ${G.atkB} | FARK: ${Math.abs(G.atkA - G.atkB)}`);
+    console.log(`ORTA   A: ${G.midA} | B: ${G.midB} | FARK: ${Math.abs(G.midA - G.midB)}`);
+    console.log(`DEFANS A: ${G.defA} | B: ${G.defB} | FARK: ${Math.abs(G.defA - G.defB)}`);
+    console.log("=======================================");
+})();
     return { teamA, teamB, posMap };
 }
+
+
+
+
+
+
+
 
 
 
@@ -1418,36 +1471,29 @@ function preparePlayerForMatch(p) {
     p.matchOVR = getOVR(p);
     return p;
 }
-
 function buildBalancedTeams(selectedPlayers, gkA, gkB) {
 
-    const POS_ORDER = ["ST", "RW", "LW", "CM", "LB", "RB", "CB"];
+    const POS_ORDER = ["ST", "RW", "LW", "CM", "LB", "CB", "RB"];
 
     let teamA = [gkA];
     let teamB = [gkB];
-	// GK’ları da maç için hazırla!!!
-let gkPlayerA = CACHE.players.find(p => p.id === gkA);
-let gkPlayerB = CACHE.players.find(p => p.id === gkB);
 
-if (gkPlayerA) preparePlayerForMatch(gkPlayerA);
-if (gkPlayerB) preparePlayerForMatch(gkPlayerB);
+    // GK hazırlanıyor
+    preparePlayerForMatch(CACHE.players.find(p => p.id === gkA));
+    preparePlayerForMatch(CACHE.players.find(p => p.id === gkB));
 
-    // BONUSLU stats ile hazırla
     let players = selectedPlayers
-        .map(id => CACHE.players.find(p => p.id === id))
-        .filter(p => p && p.id !== gkA && p.id !== gkB)
-        .map(p => preparePlayerForMatch(p))
+        .filter(id => id !== gkA && id !== gkB)
+        .map(id => preparePlayerForMatch(CACHE.players.find(p => p.id === id)))
         .map(p => getPlayerPositions(p));
 
-    /* =====================================
-       1) MAIN POZISYON GRUPLAMA
-    ====================================== */
+    // --- POZİSYON GRUPLAMA ---
     let groups = {};
     POS_ORDER.forEach(pos => groups[pos] = []);
 
     players.forEach(p => {
-        if (POS_ORDER.includes(p.main))
-            groups[p.main].push(p);
+        if (POS_ORDER.includes(p.main)) groups[p.main].push(p);
+        else if (POS_ORDER.includes(p.sub)) groups[p.sub].push(p);
     });
 
     POS_ORDER.forEach(pos => groups[pos].sort((a, b) => b.ovr - a.ovr));
@@ -1455,68 +1501,21 @@ if (gkPlayerB) preparePlayerForMatch(gkPlayerB);
     let posMap = {};
     let used = new Set();
 
-    /* =====================================
-       2) MAIN SLOT DOLDUR
-    ====================================== */
+    // Ana oyuncuların yerleştirilmesi
     POS_ORDER.forEach(pos => {
-        const list = groups[pos];
+        if (groups[pos].length >= 2) {
+            posMap[pos] = groups[pos][0].id;
+            posMap[pos + "2"] = groups[pos][1].id;
 
-        if (list.length >= 2) {
-            posMap[pos] = list[0].id;
-            posMap[pos + "2"] = list[1].id;
+            teamA.push(groups[pos][0].id);
+            teamB.push(groups[pos][1].id);
 
-            teamA.push(list[0].id);
-            teamB.push(list[1].id);
-
-            used.add(list[0].id);
-            used.add(list[1].id);
-        }
-        else if (list.length === 1) {
-            posMap[pos] = list[0].id;
-            posMap[pos + "2"] = null;
-
-            teamA.push(list[0].id);
-            used.add(list[0].id);
-        }
-        else {
-            posMap[pos] = null;
-            posMap[pos + "2"] = null;
+            used.add(groups[pos][0].id);
+            used.add(groups[pos][1].id);
         }
     });
 
-    /* =====================================
-       3) SUB HAVUZU
-    ====================================== */
-    let subPlayers = players.filter(p => !used.has(p.id));
-    subPlayers.sort((a, b) => b.ovr - a.ovr);
-
-    /* =====================================
-       4) SUB → BOŞ SLOT DOLDUR
-    ====================================== */
-    subPlayers.forEach(p => {
-        if (!p.sub) return;
-
-        let A_slot = posMap[p.sub];
-        let B_slot = posMap[p.sub + "2"];
-
-        if (!A_slot) {
-            posMap[p.sub] = p.id;
-            teamA.push(p.id);
-            used.add(p.id);
-            return;
-        }
-
-        if (!B_slot) {
-            posMap[p.sub + "2"] = p.id;
-            teamB.push(p.id);
-            used.add(p.id);
-            return;
-        }
-    });
-
-    /* =====================================
-       5) KALANLARI BONUS OVR’A GÖRE DOLDUR
-    ====================================== */
+    // --- Eksik pozisyonları SUB / yüksek OVR ile doldur ---
     let leftovers = players.filter(p => !used.has(p.id));
     leftovers.sort((a, b) => b.ovr - a.ovr);
 
@@ -1527,7 +1526,6 @@ if (gkPlayerB) preparePlayerForMatch(gkPlayerB);
             teamA.push(p.id);
             used.add(p.id);
         }
-
         if (!posMap[pos + "2"] && leftovers.length > 0) {
             let p = leftovers.shift();
             posMap[pos + "2"] = p.id;
@@ -1536,23 +1534,17 @@ if (gkPlayerB) preparePlayerForMatch(gkPlayerB);
         }
     });
 
-    /* =====================================
-       6) GK EKLE
-    ====================================== */
+    // Kaleciler ekleniyor
     posMap["GK"] = gkA;
     posMap["GK2"] = gkB;
 
-    /* =====================================
-       7) BONUSLU OVR DENGELEME
-    ====================================== */
+    // 🔥 En son bölgesel balance
     let balanced = balanceTeams(teamA, teamB, posMap);
 
-    return {
-        teamA: balanced.teamA,
-        teamB: balanced.teamB,
-        posMap: balanced.posMap
-    };
+    return balanced;
 }
+
+
 
 
 
