@@ -2298,6 +2298,13 @@ body {
     white-space: normal !important;
 }
 
+#comingStatus {
+    display: block;
+   margin-left: -158px;
+    margin-top: 55px;
+    font-size: 14px;
+
+}
 
 
 
