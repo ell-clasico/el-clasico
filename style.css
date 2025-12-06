@@ -15,7 +15,7 @@ body {
     overflow-x: hidden;
 }
 
-/* BG. */
+/* BG.. */
 .bg {
     position: fixed;
     inset: 0;
@@ -2305,6 +2305,7 @@ body {
     font-size: 14px;
 color: #f1f1f1 !important;
 }
+
 
 
 
