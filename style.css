@@ -2249,7 +2249,7 @@ body {
 }
 
 .card h3 {
-    margin-top: 12px !important;  /* ismi aşağı indirir */
+    margin-top: 12px !important;  /* ismi aşağı indirir. */
 }
 
 .card h3 {
@@ -2305,6 +2305,7 @@ body {
     font-size: 14px;
 color: #f1f1f1 !important;
 }
+
 
 
 
