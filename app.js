@@ -196,6 +196,16 @@ async function addPlayer() {
     loadAll();
     notify("Oyuncu Eklendi");
 }
+function renderOrderText(order) {
+    if (!order) return "";
+
+    if (order <= 16) {
+        return `Mevcut sıran ${order} / 16`;
+    }
+
+    return `Sıran ${order} — Yedek oyuncusun`;
+}
+
 
 
 // ==========================================================
@@ -218,70 +228,109 @@ function showPage(id) {
 
     console.log("AÇILAN SAYFA:", id);
 
-    if (id === "profilim") {
-        loadProfil();
-    }
+    if (id === "profilim") loadProfil();
+    if (id === "admin") loadLoginLogs();
+    if (id === "kazananYonetim") loadWinnerPlayerGrid();
 
-    if (id === "admin") {
-        loadLoginLogs();
-    }
-	if (id === "kazananYonetim") {
-    loadWinnerPlayerGrid();
-}	
-
-    // ⭐ KADRO SAYFASI AÇILDIĞINDA
+    // ⭐ KADRO SAYFASI
     if (id === "kadro") {
         loadKadroPlayerGrid();
 
-        // ⭐ NEW → Reset sonrası UI boşaltılacaksa burada çalışsın
         if (window.clearKadroUIPending) {
             clearKadroUI();
             window.clearKadroUIPending = false;
         }
     }
 
+    // ⭐ HAFTANIN KADROSU SAYFASI
     if (id === "haftaninKadro") {
 
-    (async () => {
-        await loadHaftaninKadro();
-        
-    })();
+        (async () => {
+            await loadHaftaninKadro();
 
-    // ⭐ Kaydet butonunu burada DOM garanti yüklenmiş durumda
-    const saveBtn = document.getElementById("comingSaveBtn");
-
-    if (saveBtn && !saveBtn._eventAdded) {
-
-        saveBtn._eventAdded = true;
-
-        saveBtn.addEventListener("click", async () => {
-            const check = document.getElementById("comingCheck");
-            const status = document.getElementById("comingStatus");
-
+            // ⭐ SAYFA AÇILINCA OTOMATİK SIRAYI GÖSTER
             if (currentUser && currentUser !== "ADMIN") {
-                await db.collection("attendance").doc(currentUser).set({
-                    user: currentUser,
-                    coming: check.checked,
-                    timestamp: new Date().toISOString()
+                const status = document.getElementById("comingStatus");
+
+                const attSnap = await db.collection("attendance")
+                    .orderBy("timestamp", "asc")
+                    .get();
+
+                let index = 1;
+                let myOrder = null;
+
+                attSnap.forEach(a => {
+                    const data = a.data();
+                    if (data.coming) {
+                        if (data.user === currentUser) myOrder = index;
+                        index++;
+                    }
                 });
+
+               status.innerText = renderOrderText(myOrder);
+status.style.color = (myOrder > 16 ? "#ff4d4d" : "#ffffff");
+
             }
+        })();
 
-            // UI anında güncelle
-            status.innerText = check.checked
-                ? "✅ Bu hafta maça geliyorsun!"
-                : "";
+        // ⭐ KAYDET BUTONU
+        const saveBtn = document.getElementById("comingSaveBtn");
 
-            notify("Kaydedildi!");
-        });
+        if (saveBtn && !saveBtn._eventAdded) {
+            saveBtn._eventAdded = true;
+
+            saveBtn.addEventListener("click", async () => {
+                const check = document.getElementById("comingCheck");
+                const status = document.getElementById("comingStatus");
+
+                if (currentUser && currentUser !== "ADMIN") {
+
+                    // 🟢 GELİYORUM
+                    if (check.checked) {
+                        await db.collection("attendance").doc(currentUser).set({
+                            user: currentUser,
+                            coming: true,
+                            timestamp: new Date().toISOString()
+                        });
+
+                        // ⭐ SIRAYI HESAPLA
+                        const attSnap = await db.collection("attendance")
+                            .orderBy("timestamp", "asc")
+                            .get();
+
+                        let index = 1;
+                        let myOrder = null;
+
+                        attSnap.forEach(a => {
+                            const data = a.data();
+                            if (data.coming) {
+                                if (data.user === currentUser) myOrder = index;
+                                index++;
+                            }
+                        });
+
+                       status.innerText = renderOrderText(myOrder);
+status.style.color = (myOrder > 16 ? "#ff4d4d" : "#ffffff");
+
+                    }
+
+                    // 🔴 GELMİYORUM
+                    else {
+                        await db.collection("attendance").doc(currentUser).delete();
+                        status.innerText = "";
+                    }
+                }
+
+                notify("Kaydedildi!");
+            });
+        }
     }
+
+    // ⭐ Son açılan sayfayı kaydet
+    if (id !== "login") localStorage.setItem("hsPage", id);
 }
 
 
-
-    if (id !== "login") {
-        localStorage.setItem("hsPage", id);
-    }
-}
 
 
 
@@ -1081,6 +1130,22 @@ function renderFifaCard(p) {
 }
 
 
+async function getMyOrder(user) {
+    const attSnap = await db.collection("attendance")
+        .orderBy("timestamp", "asc")
+        .get();
+
+    let index = 1;
+
+    for (const a of attSnap.docs) {
+        const data = a.data();
+        if (data.coming) {
+            if (data.user === user) return index;
+            index++;
+        }
+    }
+    return null;
+}
 
 
 
@@ -1125,15 +1190,19 @@ let selectedPlayers = [];
 /* 16 oyuncu gridini yükle */
 async function loadKadroPlayerGrid() {
     const snap = await db.collection("players").get();
-    const attSnap = await db.collection("attendance").get();
+    const attSnap = await db.collection("attendance")
+        .orderBy("timestamp", "asc")
+        .get();
 
-    // Katılım yapanları map’e alıyoruz
-    let comingMap = {};
+    // Katılım listesi → sıraya göre
+    let orderMap = {};
+    let index = 1;
+
     attSnap.forEach(a => {
         const data = a.data();
-        // coming: true olan kullanıcıları kaydet
         if (data.coming) {
-            comingMap[data.user] = true;
+            orderMap[data.user] = index;
+            index++;
         }
     });
 
@@ -1149,26 +1218,51 @@ async function loadKadroPlayerGrid() {
         div.className = "player-item";
         div.innerText = p.name;
         div.dataset.id = id;
+	div.style.position = "relative";
+        let sira = orderMap[p.name] || null;
 
-        // ⭐ KATILIM YAPAN OYUNCULAR OTOMATİK SEÇİLİ GELİR
-        if (comingMap[p.name]) {
+        // ⭐ Sadece küçük sıra etiketi ekleniyor — tasarım bozulmuyor
+        if (sira !== null) {
+            const badge = document.createElement("div");
+            badge.innerText = sira;
+            badge.style.position = "absolute";
+            badge.style.top = "3px";
+            badge.style.left = "6px";
+            badge.style.fontSize = "11px";
+            badge.style.fontWeight = "700";
+            badge.style.padding = "2px 5px";
+            badge.style.borderRadius = "6px";
+
+            // İlk 16 kişi yeşil (buton yeşil değil — badge yeşil)
+            if (sira <= 16) {
+                badge.style.background = "rgba(34,197,94,0.7)";
+                badge.style.color = "#fff";
+            } 
+            // 17 ve sonrası kırmızı
+            else {
+                badge.style.background = "rgba(239,68,68,0.8)";
+                badge.style.color = "#fff";
+            }
+
+            div.appendChild(badge);
+        }
+
+        // ⭐ Katılım yapanlar otomatik seçili
+        if (sira !== null && sira <= 16) {
             div.classList.add("selected");
             selectedPlayers.push(id);
         }
 
-        // 🔥 Mevcut seçim tıklama sistemi — hiçbir şey değişmedi
+        // ⭐ SENİN MEVCUT TIKLAMA SİSTEMİN — HİÇ DEĞİŞMEDİ
         div.addEventListener("click", () => {
             if (div.classList.contains("selected")) {
                 div.classList.remove("selected");
                 selectedPlayers = selectedPlayers.filter(x => x !== id);
             } else {
-
-                // 16 oyuncu sınırı (dokunmadım)
                 if (selectedPlayers.length >= 16) {
                     alert("En fazla 16 oyuncu seçebilirsin!");
                     return;
                 }
-
                 div.classList.add("selected");
                 selectedPlayers.push(id);
             }
@@ -1179,9 +1273,9 @@ async function loadKadroPlayerGrid() {
         grid.appendChild(div);
     });
 
-    // İlk girişte kaleci dropdownları çalışması için
     updateGKDropdowns();
 }
+
 
 
 /* Kaleci dropdownlarını güncelle */
@@ -1299,7 +1393,7 @@ function getPlayerPositions(p) {
 
 
 /* ==========================================================
-   TAKIM DENGELEYİCİ (OVR BALANCER).
+   TAKIM DENGELEYİCİ (OVR BALANCER)
 ========================================================== */
 function balanceTeams(teamA, teamB, posMap) {
 
@@ -2167,7 +2261,7 @@ async function resetWeek() {
 }
 
 function clearKadroUI() {
-    // Oyuncu seçimlerini temizlee
+    // Oyuncu seçimlerini temizle
     selectedPlayers = [];
 
     // Grid üzerindeki seçili class'ları sil
