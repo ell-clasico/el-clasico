@@ -15,7 +15,7 @@ let selects = {};
 let multiSelects = {};
 
 // ==========================================================
-// GLOBAL CACHE — TÜM VERİLERİ 1 KERE ÇEKER
+// GLOBAL CACHE — TÜM VERİLERİ 1 KERE ÇEKER.
 // ==========================================================
 
 let CACHE = {
