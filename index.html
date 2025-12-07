@@ -253,6 +253,14 @@
     </div>
 	<div id="userAttendancePanel" style="margin-top:20px;">
     <h3>Bu Hafta Maça Geliyor musun?</h3>
+	<button id="toggleComingListBtn" class="comingToggleBtn">
+    👥 Gelenleri Gör
+</button>
+
+<div id="comingListBox" class="comingListPanel">
+    <div class="comingHeader">Bu Hafta Maça Gelecekler</div>
+    <div id="comingList" class="comingItems"></div>
+</div>
     <div id="comingBox" class="coming-container">
         <label class="switch">
             <input type="checkbox" id="comingCheck">
@@ -262,6 +270,8 @@
         <span class="comingText">Maça geliyorum</span>
 
         <div id="comingStatus" class="coming-status"></div>
+		
+
     </div>
    <button id="comingSaveBtn" class="btn">Kaydet</button>
 </div>
