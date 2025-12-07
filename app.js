@@ -244,7 +244,7 @@ function showPage(id) {
 
     // ⭐ HAFTANIN KADROSU SAYFASI
     if (id === "haftaninKadro") {
-
+	
         (async () => {
             await loadHaftaninKadro();
 
@@ -272,7 +272,35 @@ status.style.color = (myOrder > 16 ? "#ff4d4d" : "#ffffff");
 
             }
         })();
+ if (!window._comingListListenerAdded) {
 
+            window._comingListListenerAdded = true;
+
+            db.collection("attendance")
+                .orderBy("timestamp", "asc")
+                .onSnapshot((snap) => {
+
+                    const listDiv = document.getElementById("comingList");
+                    if (!listDiv) return;
+
+                    let html = "";
+                    let index = 1;
+
+                    snap.forEach(doc => {
+                        const data = doc.data();
+                        if (data.coming) {
+                            html += `${index}. ${data.user}<br>`;
+                            index++;
+                        }
+                    });
+
+                    setTimeout(() => {
+    const listDiv = document.getElementById("comingList");
+    if (listDiv) listDiv.innerHTML = html;
+}, 20);
+
+                });
+        }
         // ⭐ KAYDET BUTONU
         const saveBtn = document.getElementById("comingSaveBtn");
 
@@ -310,7 +338,7 @@ status.style.color = (myOrder > 16 ? "#ff4d4d" : "#ffffff");
                         });
 
                        status.innerText = renderOrderText(myOrder);
-status.style.color = (myOrder > 16 ? "#ff4d4d" : "#ffffff");
+						status.style.color = (myOrder > 16 ? "#ff4d4d" : "#ffffff");
 
                     }
 
@@ -2188,7 +2216,7 @@ async function saveAttendance() {
         coming,
         timestamp: new Date().toISOString()
     });
-
+await loadComingList();   // 🔥 Liste anında yenilenir
     notify("Katılım Kaydedildi");
 }
 async function loadUserAttendanceState() {
@@ -2270,6 +2298,23 @@ function clearKadroUI() {
         items.forEach(div => div.classList.remove("selected"));
     }
 }
+document.getElementById("toggleComingListBtn").onclick = async () => {
+    const box = document.getElementById("comingListBox");
+    const btn = document.getElementById("toggleComingListBtn");
+
+  
+
+    // ⭐ Sonra paneli aç/kapa
+    if (box.style.display === "none" || box.style.display === "") {
+        box.style.display = "block";
+        btn.innerText = "🔽 Listeyi Gizle";
+    } else {
+        box.style.display = "none";
+        btn.innerText = "👥 Gelenleri Gör";
+    }
+};
+
+
 
 
 
