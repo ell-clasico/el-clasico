@@ -2305,6 +2305,87 @@ body {
     font-size: 14px;
 color: #f1f1f1 !important;
 }
+/* Aç/Kapa Butonu */
+.comingToggleBtn {
+    background: rgba(163, 71, 255, 0.25);
+    border: 2px solid #a347ff;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.25s;
+    margin-left: 12px;
+}
+
+.comingToggleBtn:hover {
+    background: rgba(163, 71, 255, 0.45);
+}
+
+/* Panel */
+.comingListPanel {
+    display: none;
+    margin-top: 12px;
+    padding: 15px;
+    background: rgba(255,255,255,0.07);
+    border: 2px solid rgba(163, 71, 255, 0.6);
+    border-radius: 10px;
+    color: white;
+    backdrop-filter: blur(8px);
+    animation: fadeDown 0.35s ease;
+}
+
+/* Panel animasyonu */
+@keyframes fadeDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Üst başlık */
+.comingHeader {
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-shadow: 0 0 6px black;
+    font-size: 16px;
+}
+
+/* Oyuncu listesi */
+.comingItems {
+    font-size: 14px;
+    line-height: 1.5;
+}
+/* 📱 Mobil uyumlu hale getir */
+@media (max-width: 750px) {
+
+    #comingListBox {
+        padding: 15px !important;
+        font-size: 13px !important;
+        line-height: 1.4 !important;
+    }
+
+    #comingListTitle {
+        font-size: 15px !important;
+        margin-bottom: 8px !important;
+    }
+
+    #comingList {
+        font-size: 13px !important;
+        word-break: break-word;
+    }
+
+    /* Kutunun tamamı ekran genişliğine uysun */
+    .coming-list-container {
+        width: 100% !important;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+}
 
 
 
