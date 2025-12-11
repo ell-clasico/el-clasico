@@ -2386,7 +2386,53 @@ color: #f1f1f1 !important;
         box-sizing: border-box;
     }
 }
+/* Hover efekti - daha canlı */
+.hkPlayer.swap-clickable:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    transition: 0.15s ease;
+}
 
+/* Seçilen oyuncu için premium efekt */
+.hkPlayer.swap-selected {
+    position: relative;
+    border-radius: 12px;
+    padding: 8px;
+    background: rgba(0, 255, 170, 0.12);
+    backdrop-filter: blur(4px);
+
+    /* Glow efekti */
+    box-shadow: 0 0 12px rgba(0, 255, 170, 0.8),
+                0 0 24px rgba(0, 255, 170, 0.5);
+
+    /* Hafif büyüme */
+    transform: scale(1.04);
+    transition: 0.2s ease;
+}
+
+/* Animasyonlu dış çizgi */
+.hkPlayer.swap-selected::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 14px;
+    background: linear-gradient(135deg,
+        #00ffbf,
+        #2bffe7,
+        #00b7ff,
+        #00fff0
+    );
+    z-index: -1;
+    filter: blur(6px);
+    animation: glowMove 2.5s linear infinite;
+}
+
+/* Glow animasyonu */
+@keyframes glowMove {
+    0% { opacity: 0.6; transform: rotate(0deg); }
+    50% { opacity: 1; transform: rotate(180deg); }
+    100% { opacity: 0.6; transform: rotate(360deg); }
+}
 
 
 
