@@ -13,7 +13,9 @@ const FORMA_A = "https://i.hizliresim.com/1qy6nk5.png";
 const FORMA_B = "https://i.hizliresim.com/82yu2gw.png"; 
 let selects = {};
 let multiSelects = {};
-
+let currentKadroPosMap = {};   // Haftanın kadrosu pozisyon haritası
+let swapSelection = null;      // Adminin seçtiği ilk oyuncu
+window.lastWeeklyData = null;  // haftaninKadro/latest içeriği
 // ==========================================================
 // GLOBAL CACHE — TÜM VERİLERİ 1 KERE ÇEKER.
 // ==========================================================
@@ -1834,42 +1836,42 @@ function posTranslate(code) {
 }
 
 
+// === TEK FONKSİYON: HAFTANIN KADROSU ===
 async function loadHaftaninKadro() {
 
-    
+    console.log("📌 AÇILAN SAYFA: haftaninKadro");
+
     const userPanel  = document.getElementById("userAttendancePanel");
     const squadPanel = document.getElementById("weeklySquadPanel");
 
-    // Sayfa açılınca her şeyi sıfırla
     if (userPanel) userPanel.style.display = "none";
     if (squadPanel) squadPanel.style.display = "none";
 
-    const snap = await db.collection("haftaninKadro").doc("latest").get();
-const noteSnap = await db.collection("weekNote").doc("latest").get();
-const noteText = noteSnap.exists ? noteSnap.data().text : "";
+    const snap     = await db.collection("haftaninKadro").doc("latest").get();
+    const noteSnap = await db.collection("weekNote").doc("latest").get();
 
-const noteBox = document.getElementById("weekNoteBox");
+    const noteText = noteSnap.exists ? noteSnap.data().text : "";
+    const noteBox  = document.getElementById("weekNoteBox");
 
-if (noteBox) {
-    if (noteText.trim() === "") {
-        noteBox.style.display = "none";  // ✔️ Not yoksa tamamen gizle
-    } else {
-        noteBox.style.display = "block"; // ✔️ Not varsa göster
-        noteBox.innerText = noteText;
+    if (noteBox) {
+        if (noteText.trim() === "") {
+            noteBox.style.display = "none";
+        } else {
+            noteBox.style.display = "block";
+            noteBox.innerText = noteText;
+        }
     }
-}
 
-    // =====================================
-    // ⭐ KADRO YOKSA → Kullanıcı paneli açılacak
-    // =====================================
+    // ==================================================
+    // ⭐ KADRO YOKSA → SADECE KULLANICI KATILIM PANELİ
+    // ==================================================
     if (!snap.exists) {
 
         if (currentUser !== "ADMIN" && userPanel) {
-            userPanel.style.display = "block";   // sadece bu durumda aç
+            userPanel.style.display = "block";
             setTimeout(() => loadUserAttendanceState(), 50);
         }
 
-        // Saha ve listeleri temizle
         const teamABox = document.getElementById("haftaTeamA");
         const teamBBox = document.getElementById("haftaTeamB");
         const field    = document.getElementById("playersOnField");
@@ -1881,47 +1883,40 @@ if (noteBox) {
         return;
     }
 
-
-    // =====================================
-    // ⭐ KADRO VARSA → kullanıcı paneli ASLA açılmayacak
-    // =====================================
-
-    if (userPanel) userPanel.style.display = "none";  // 🔥 en kritik satır
+    // ==================================================
+    // ⭐ KADRO VAR → SADECE SQUAD PANELİ
+    // ==================================================
+    if (userPanel)  userPanel.style.display  = "none";
     if (squadPanel) squadPanel.style.display = "block";
 
-
-
-
-    // ============================
-    // Aşağıdaki bölüm SENİN KODUN — DEĞİŞTİRMEDİM
-    // ============================
-
-    const data = snap.data();
+    // VERİLERİ AL
+    const data   = snap.data();
     const posMap = data.posMap || {};
+
+    // SWAP İÇİN GLOBAL SAKLA
+    currentKadroPosMap = { ...posMap };
+    currentWeeklyData  = data;
 
     const teamABox = document.getElementById("haftaTeamA");
     const teamBBox = document.getElementById("haftaTeamB");
+    const field    = document.getElementById("playersOnField");
 
     teamABox.innerHTML = "";
     teamBBox.innerHTML = "";
+    field.innerHTML    = "";
 
     const posList = ["GK","CB","LB","RB","CM","LW","RW","ST"];
 
-    const getOVR = (p) => {
-        return p?.matchOVR ?? getOVR_withBonus(p);
-    };
+    const getOVR      = (p) => p?.matchOVR ?? getOVR_withBonus(p);
+    const getOvrClass = (o) => o >= 85 ? "ovr-gold" : o >= 75 ? "ovr-silver" : "ovr-bronze";
 
-    const getOvrClass = (ovr) => {
-        if (ovr >= 85) return "ovr-gold";
-        if (ovr >= 75) return "ovr-silver";
-        return "ovr-bronze";
-    };
-
+    // ==================================================
+    // ⭐ TAKIM LİSTELERİ
+    // ==================================================
     posList.forEach(pos => {
-        const key = pos;
 
-        const A_id = posMap[key] || null;
-        const B_id = posMap[key + "2"] || null;
+        const A_id = posMap[pos]     || null;
+        const B_id = posMap[pos+"2"] || null;
 
         const A_player = CACHE.players.find(p => p.id === A_id);
         const B_player = CACHE.players.find(p => p.id === B_id);
@@ -1929,73 +1924,59 @@ if (noteBox) {
         if (A_player) preparePlayerForMatch(A_player);
         if (B_player) preparePlayerForMatch(B_player);
 
-        const posName = posTranslate(key);
+        const posName = posTranslate(pos);
 
-        const ovrA = getOVR(A_player);
-        const ovrB = getOVR(B_player);
-
+        const ovrA   = getOVR(A_player);
+        const ovrB   = getOVR(B_player);
         const classA = getOvrClass(ovrA);
         const classB = getOvrClass(ovrB);
 
-        // A TAKIMI
+        // --- A TAKIMI ---
         teamABox.innerHTML += `
-            <div class="hkPlayer">
+            <div class="hkPlayer ${currentUser === 'ADMIN' ? 'swap-clickable' : ''}"
+                 data-team="A" data-pos="${pos}">
                 <img class="hkFormImg" src="${FORMA_A}">
                 <div class="playerOVR ${classA}">${A_player ? ovrA : "-"}</div>
-
                 <span>${A_player ? A_player.name : "-"}</span>
                 <span class="playerPos">${A_player ? posName : "-"}</span>
             </div>
         `;
 
-        // B TAKIMI
+        // --- B TAKIMI ---
         teamBBox.innerHTML += `
-            <div class="hkPlayer">
+            <div class="hkPlayer ${currentUser === 'ADMIN' ? 'swap-clickable' : ''}"
+                 data-team="B" data-pos="${pos}">
                 <img class="hkFormImg" src="${FORMA_B}">
                 <div class="playerOVR ${classB}">${B_player ? ovrB : "-"}</div>
-
                 <span>${B_player ? B_player.name : "-"}</span>
                 <span class="playerPos">${B_player ? posName : "-"}</span>
             </div>
         `;
     });
 
-    // === SAHA YERLEŞTİRME ===
-    const field = document.getElementById("playersOnField");
-    field.innerHTML = "";
-
+    // ==================================================
+    // ⭐ SAHA YERLEŞTİR
+    // ==================================================
     const coordsA = {
-        "GK":  { x: 8, y: 44 },
-        "CB":{ x: 20, y: 44 },
-        "LB":  { x: 25, y: 17 },
-        "RB":  { x: 25, y: 69 },
-        "CM":{ x: 45, y: 44 },
-        "LW":  { x: 60, y: 12 },
-        "RW":  { x: 60, y: 74 },
-        "ST":  { x: 72, y: 44 }
+        "GK":{x:8,y:44},"CB":{x:20,y:44},"LB":{x:25,y:17},"RB":{x:25,y:69},
+        "CM":{x:45,y:44},"LW":{x:60,y:12},"RW":{x:60,y:74},"ST":{x:72,y:44}
     };
 
     const coordsB = {
-        "GK":  { x: 92, y: 44 },
-        "CB":{ x: 80, y: 44 },
-        "LB":  { x: 75, y: 69 },
-        "RB":  { x: 75, y: 17 },
-        "CM":{ x: 55, y: 44 },
-        "LW":  { x: 40, y: 74 },
-        "RW":  { x: 40, y: 12 },
-        "ST":  { x: 28, y: 44 }
+        "GK":{x:92,y:44},"CB":{x:80,y:44},"LB":{x:75,y:69},"RB":{x:75,y:17},
+        "CM":{x:55,y:44},"LW":{x:40,y:74},"RW":{x:40,y:12},"ST":{x:28,y:44}
     };
 
     function drawOnField(player, pos, team) {
         if (!player) return;
 
-        const c = team === "A" ? coordsA[pos] : coordsB[pos];
-        if (!c) return;
+        const posXY = team === "A" ? coordsA[pos] : coordsB[pos];
+        if (!posXY) return;
 
         field.innerHTML += `
-            <div class="playerMark" style="left:${c.x}%; top:${c.y}%;">
+            <div class="playerMark" style="left:${posXY.x}%; top:${posXY.y}%;">
                 <div class="formWrapper">
-                    <img src="${team === "A" ? FORMA_A : FORMA_B}" class="formImg">
+                    <img class="formImg" src="${team === "A" ? FORMA_A : FORMA_B}">
                     <span class="formNumber">${player.matchOVR ?? getOVR_withBonus(player)}</span>
                 </div>
                 <div class="playerName">${player.name}</div>
@@ -2003,25 +1984,75 @@ if (noteBox) {
         `;
     }
 
-    // ÇİME OYUNCULARI ÇİZ
     posList.forEach(pos => {
-        drawOnField(
-            CACHE.players.find(p => p.id === posMap[pos]),
-            pos,
-            "A"
-        );
-
-        drawOnField(
-            CACHE.players.find(p => p.id === posMap[pos + "2"]),
-            pos,
-            "B"
-        );
+        drawOnField(CACHE.players.find(p => p.id === posMap[pos]),     pos, "A");
+        drawOnField(CACHE.players.find(p => p.id === posMap[pos+"2"]), pos, "B");
     });
 
-    console.log("POS MAP:", posMap);
-    console.log("TEAM A:", data.teamA);
-    console.log("TEAM B:", data.teamB);
+    // ==================================================
+    // ⭐ ADMIN İSE: OYUNCU DEĞİŞTİRME AKTİF
+    // ==================================================
+    if (currentUser === "ADMIN") {
+        document.querySelectorAll(".swap-clickable").forEach(el => {
+            el.onclick = () => adminSwapClick(el, posList);
+        });
+    }
+
+    console.log("✔ Haftanın kadrosu çizildi");
 }
+
+
+// === ADMIN SWAP FONKSİYONU ===
+async function adminSwapClick(el, posList) {
+    const team = el.dataset.team;
+    const pos  = el.dataset.pos;
+
+    const key       = team === "A" ? pos : pos + "2";
+    const clickedId = currentKadroPosMap[key];
+
+    if (!clickedId) return;
+
+    // 1. Seçim
+    if (!swapSelection) {
+        swapSelection = { team, pos, key };
+        el.classList.add("swap-selected");
+        return;
+    }
+
+    // Aynı elemana tıklarsa → iptal
+    if (swapSelection.team === team && swapSelection.pos === pos) {
+        document.querySelectorAll(".swap-selected")
+            .forEach(x => x.classList.remove("swap-selected"));
+        swapSelection = null;
+        return;
+    }
+
+    // 2. Seçim → SWAP
+    const key1 = swapSelection.key;
+    const key2 = key;
+
+    const id1 = currentKadroPosMap[key1];
+    const id2 = currentKadroPosMap[key2];
+
+    currentKadroPosMap[key1] = id2;
+    currentKadroPosMap[key2] = id1;
+
+    // Seçim highlightlarını temizle
+    document.querySelectorAll(".swap-selected")
+        .forEach(x => x.classList.remove("swap-selected"));
+    swapSelection = null;
+
+    // Firestore'a kaydet
+    await db.collection("haftaninKadro").doc("latest").update({
+        posMap: currentKadroPosMap
+    });
+
+    // Ekranı tekrar çiz
+    await loadHaftaninKadro();
+}
+
+
+
 
 
 
