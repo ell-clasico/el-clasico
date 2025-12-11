@@ -13,7 +13,7 @@ const FORMA_A = "https://i.hizliresim.com/1qy6nk5.png";
 const FORMA_B = "https://i.hizliresim.com/82yu2gw.png"; 
 let selects = {};
 let multiSelects = {};
-let currentKadroPosMap = {};   // Haftanın kadrosu pozisyon haritası.
+let currentKadroPosMap = {};   // Haftanın kadrosu pozisyon haritası..
 let swapSelection = null;      // Adminin seçtiği ilk oyuncu
 window.lastWeeklyData = null;  // haftaninKadro/latest içeriği
 // ==========================================================
