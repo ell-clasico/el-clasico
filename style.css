@@ -20,7 +20,7 @@ body {
     position: fixed;
     inset: 0;
     z-index: -1;
-    background: url("https://i.hizliresim.com/21lpacv.png") center/cover no-repeat;
+    background: url("https://r.resimlink.com/bmoTK.jpg") center/cover no-repeat;
     filter: brightness(0.45) saturate(1.3);
     animation: neonBG 8s ease-in-out infinite alternate;
 }
@@ -362,7 +362,7 @@ body {
     width: 180px;
     height: 330px;
     background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(0,0,0,0.45)),
-                url('https://i.hizliresim.com/j07s1f1.png'); /* örnek FIFA kart PNG */
+                url('https://r.resimlink.com/LzDnFM-.png'); /* örnek FIFA kart PNG */
     background-size: cover;
     background-position: center;
     border-radius: 12px;
@@ -1390,7 +1390,7 @@ body {
     min-width: 80px !important;
     padding: 8px 0 !important;
     background-color: transparent !important;
-    background-image: url('https://i.hizliresim.com/1qy6nk5.png') !important;
+    background-image: url('https://r.resimlink.com/LzDnFM-.png') !important;
     background-size: 55px !important;
     background-position: center top !important;
     background-repeat: no-repeat !important;
@@ -1452,7 +1452,7 @@ body {
     width: 100%;
     max-width: 350px;
     height: 450px;
-	background-image: url("https://i.hizliresim.com/i1g8lc3.jpg"); /* Örnek saha resmi */
+	background-image: url("https://r.resimlink.com/lmWq6sBo_uKr.jpg"); /* Örnek saha resmi */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -2433,6 +2433,7 @@ color: #f1f1f1 !important;
     50% { opacity: 1; transform: rotate(180deg); }
     100% { opacity: 0.6; transform: rotate(360deg); }
 }
+
 
 
 
