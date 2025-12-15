@@ -6,11 +6,11 @@ const upload = Upload({
     apiKey: "public_G22nj4G4oJqYwoLB52gv3yHBP462"
 });
 
-const DEFAULT_PHOTO = "https://i.hizliresim.com/hw8yfje.png";
+const DEFAULT_PHOTO = "https://r.resimlink.com/1OaK9D5B.png";
 let currentUser = null;
 const db = firebase.firestore();
-const FORMA_A = "https://i.hizliresim.com/1qy6nk5.png";
-const FORMA_B = "https://i.hizliresim.com/82yu2gw.png"; 
+const FORMA_A = "https://r.resimlink.com/P_CN4VT12.png";
+const FORMA_B = "https://r.resimlink.com/yWCUk8_Vuw4.png"; 
 let selects = {};
 let multiSelects = {};
 let currentKadroPosMap = {};   // Haftanın kadrosu pozisyon haritası..
