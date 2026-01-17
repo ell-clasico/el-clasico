@@ -20,7 +20,7 @@ body {
     position: fixed;
     inset: 0;
     z-index: -1;
-    background: url("https://r.resimlink.com/bmoTK.jpg") center/cover no-repeat;
+    background: url("./img/arkaplan.png") center/cover no-repeat;
     filter: brightness(0.45) saturate(1.3);
     animation: neonBG 8s ease-in-out infinite alternate;
 }
@@ -362,7 +362,7 @@ body {
     width: 180px;
     height: 330px;
     background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(0,0,0,0.45)),
-                url('https://r.resimlink.com/LzDnFM-.png'); /* örnek FIFA kart PNG */
+                url('./img/kart.png'); /* örnek FIFA kart PNG */
     background-size: cover;
     background-position: center;
     border-radius: 12px;
@@ -2433,6 +2433,7 @@ color: #f1f1f1 !important;
     50% { opacity: 1; transform: rotate(180deg); }
     100% { opacity: 0.6; transform: rotate(360deg); }
 }
+
 
 
 
