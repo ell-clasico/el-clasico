@@ -1452,7 +1452,7 @@ body {
     width: 100%;
     max-width: 350px;
     height: 450px;
-	background-image: url("https://r.resimlink.com/C2GyijHr.jpg"); /* Örnek saha resmi */
+	background-image: url("./img/saha.jpg"); /* Örnek saha resmi */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -2433,6 +2433,7 @@ color: #f1f1f1 !important;
     50% { opacity: 1; transform: rotate(180deg); }
     100% { opacity: 0.6; transform: rotate(360deg); }
 }
+
 
 
 
